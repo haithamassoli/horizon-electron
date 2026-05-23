@@ -2,10 +2,13 @@ import { app, BrowserWindow } from 'electron';
 import { registerSettingsChannels } from './ipc/settings-channels';
 import { registerStateChannels } from './ipc/state-channels';
 import { registerPopoverChannels } from './ipc/popover-channels';
+import { registerOverlayChannels } from './ipc/overlay-channels';
 import { showSettingsWindow } from './windows/settings-window';
 import { getSettingsStore } from './store/settings-store';
 import { getScheduler } from './scheduler/scheduler';
 import { createTray, destroyTray } from './tray/tray';
+import { wireOverlayManagerToScheduler } from './windows/overlay-manager';
+import { wirePreWarningToScheduler } from './windows/pre-warning-window';
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -16,6 +19,9 @@ app.on('second-instance', () => {
   showSettingsWindow();
 });
 
+let unsubscribeOverlay: (() => void) | null = null;
+let unsubscribePreWarning: (() => void) | null = null;
+
 app.whenReady().then(() => {
   getSettingsStore();
   const scheduler = getScheduler();
@@ -23,8 +29,11 @@ app.whenReady().then(() => {
   registerSettingsChannels();
   registerStateChannels();
   registerPopoverChannels();
+  registerOverlayChannels();
 
   scheduler.start();
+  unsubscribeOverlay = wireOverlayManagerToScheduler();
+  unsubscribePreWarning = wirePreWarningToScheduler();
   createTray();
   showSettingsWindow();
 
@@ -34,6 +43,10 @@ app.whenReady().then(() => {
 });
 
 app.on('before-quit', () => {
+  unsubscribeOverlay?.();
+  unsubscribeOverlay = null;
+  unsubscribePreWarning?.();
+  unsubscribePreWarning = null;
   destroyTray();
 });
 

@@ -14,6 +14,9 @@ interface UseSettingsResult extends SettingsState {
   setInterval: (minutes: number) => Promise<void>;
   setEnforcementMode: (mode: EnforcementMode) => Promise<void>;
   setBlinkEnabled: (enabled: boolean) => Promise<void>;
+  setShortDurationSeconds: (seconds: number) => Promise<void>;
+  setLongCadence: (count: number) => Promise<void>;
+  setLongDurationMinutes: (minutes: number) => Promise<void>;
 }
 
 export function useSettings(): UseSettingsResult {
@@ -74,6 +77,12 @@ export function useSettings(): UseSettingsResult {
     setInterval: (minutes) =>
       update((s) => ({ ...s, breaks: { ...s.breaks, intervalMinutes: minutes } })),
     setEnforcementMode: (mode) => update((s) => ({ ...s, enforcementMode: mode })),
-    setBlinkEnabled: (enabled) => update((s) => ({ ...s, blink: { ...s.blink, enabled } }))
+    setBlinkEnabled: (enabled) => update((s) => ({ ...s, blink: { ...s.blink, enabled } })),
+    setShortDurationSeconds: (seconds) =>
+      update((s) => ({ ...s, breaks: { ...s.breaks, shortDurationSeconds: seconds } })),
+    setLongCadence: (count) =>
+      update((s) => ({ ...s, breaks: { ...s.breaks, longCadence: count } })),
+    setLongDurationMinutes: (minutes) =>
+      update((s) => ({ ...s, breaks: { ...s.breaks, longDurationMinutes: minutes } }))
   };
 }

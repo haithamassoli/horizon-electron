@@ -66,21 +66,21 @@ Sizing: **S** ≈ a few days, **M** ≈ ~1 week, **L** ≈ ~2 weeks (solo, focus
 
 **Tasks:**
 
-1. [ ] Implement an `OverlayManager` in main: spawns / dismisses overlay windows across displays atomically.
-2. [ ] Window config: `frame: false`, `fullscreen: true`, `alwaysOnTop: 'screen-saver'`, `skipTaskbar: true`, `focusable: true`, `closable: false`.
-3. [ ] On `break-due`, enumerate `screen.getAllDisplays()`, identify primary via `screen.getPrimaryDisplay()`, spawn one overlay per display with a `role` query param (`primary` or `secondary`).
-4. [ ] Build the primary overlay renderer view: soft animated breathing gradient background (light-blue dominant).
-5. [ ] Add the centered countdown timer (Tailwind `font-light`, large size). Wire to a `tick` IPC event from main (1 Hz).
-6. [ ] Add a placeholder breathing visual (expanding/contracting circle — actual breathing pattern logic comes in M7).
-7. [ ] Build the secondary overlay renderer view: 90% black background, blur applied to a snapshot or pure backdrop, no UI.
-8. [ ] Implement the skip button (Casual mode only at this stage). On click, sends `overlay:skip` IPC; main dismisses all overlays.
-9. [ ] Implement keyboard skip (Space / Enter / Esc) in Casual mode — same effect as button.
-10. [ ] Implement the pre-break warning toast: 60s before `break-due`, main emits `pre-warning-due`. Spawn a small frameless `BrowserWindow` positioned bottom-right of the primary display.
-11. [ ] Style the toast: minimal, "Break in 60s", subtle close button. Slide-in from bottom-right (Framer Motion, 300ms spring).
-12. [ ] Toast acknowledge-only — closing the toast does not skip the break.
-13. [ ] Differentiate long break from short break in overlay (longer duration, identical visual; optional subtle copy "Long break").
-14. [ ] Add overlay fade-in (400ms ease-out) and fade-out (250ms ease-in) using Framer Motion.
-15. [ ] Add settings UI controls for break timing (interval, short duration, long cadence, long duration) with the spec'd ranges; wire to live `settings:set`.
+1. [x] Implement an `OverlayManager` in main: spawns / dismisses overlay windows across displays atomically.
+2. [x] Window config: `frame: false`, `fullscreen: true`, `alwaysOnTop: 'screen-saver'`, `skipTaskbar: true`, `focusable: true`, `closable: false`.
+3. [x] On `break-due`, enumerate `screen.getAllDisplays()`, identify primary via `screen.getPrimaryDisplay()`, spawn one overlay per display with a `role` query param (`primary` or `secondary`).
+4. [x] Build the primary overlay renderer view: soft animated breathing gradient background (light-blue dominant).
+5. [x] Add the centered countdown timer (Tailwind `font-light`, large size). Wire to a `tick` IPC event from main (1 Hz).
+6. [x] Add a placeholder breathing visual (expanding/contracting circle — actual breathing pattern logic comes in M7).
+7. [x] Build the secondary overlay renderer view: 90% black background, blur applied to a snapshot or pure backdrop, no UI.
+8. [x] Implement the skip button (Casual mode only at this stage). On click, sends `overlay:skip` IPC; main dismisses all overlays.
+9. [x] Implement keyboard skip (Space / Enter / Esc) in Casual mode — same effect as button.
+10. [x] Implement the pre-break warning toast: 60s before `break-due`, main emits `pre-warning-due`. Spawn a small frameless `BrowserWindow` positioned bottom-right of the primary display.
+11. [x] Style the toast: minimal, "Break in 60s", subtle close button. Slide-in from bottom-right (Framer Motion, 300ms spring).
+12. [x] Toast acknowledge-only — closing the toast does not skip the break.
+13. [x] Differentiate long break from short break in overlay (longer duration, identical visual; optional subtle copy "Long break").
+14. [x] Add overlay fade-in (400ms ease-out) and fade-out (250ms ease-in) using Framer Motion.
+15. [x] Add settings UI controls for break timing (interval, short duration, long cadence, long duration) with the spec'd ranges; wire to live `settings:set`.
 16. [ ] Acceptance check: with a 1-min interval and 10s short break, run for 5 minutes uninterrupted across two displays — verify toast → overlay → dismissal flow works on every cycle.
 
 ---

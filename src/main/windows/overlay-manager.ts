@@ -1,0 +1,262 @@
+import { BrowserWindow, screen, type Display } from 'electron';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { randomUUID } from 'node:crypto';
+import {
+  ipcChannels,
+  overlayInitPayloadSchema,
+  overlayTickEventSchema,
+  type OverlayInitPayload,
+  type OverlayRole,
+  type Settings
+} from '@shared/schemas';
+import { getScheduler } from '../scheduler/scheduler';
+import { getSettingsStore } from '../store/settings-store';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const TICK_MS = 1_000;
+const FADE_OUT_MS = 250;
+
+interface OverlayWindowRecord {
+  win: BrowserWindow;
+  displayId: number;
+  role: OverlayRole;
+}
+
+interface ActiveSession {
+  id: string;
+  isLongBreak: boolean;
+  durationMs: number;
+  startedAt: number;
+  visualAid: Settings['overlay']['visualAid'];
+  mode: Settings['enforcementMode'];
+  primaryDisplayId: number;
+  windows: OverlayWindowRecord[];
+  tickHandle: ReturnType<typeof setInterval> | null;
+  durationHandle: ReturnType<typeof setTimeout> | null;
+  closeHandle: ReturnType<typeof setTimeout> | null;
+  closing: boolean;
+}
+
+let active: ActiveSession | null = null;
+let displayListenersAttached = false;
+
+export function isOverlayActive(): boolean {
+  return active !== null;
+}
+
+export function getOverlayInitPayload(webContentsId: number): OverlayInitPayload | null {
+  if (!active) return null;
+  const record = active.windows.find((w) => w.win.webContents.id === webContentsId);
+  if (!record) return null;
+  return {
+    sessionId: active.id,
+    role: record.role,
+    mode: active.mode,
+    isLongBreak: active.isLongBreak,
+    durationMs: active.durationMs,
+    startedAt: active.startedAt,
+    visualAid: active.visualAid
+  };
+}
+
+export function requestOverlaySkip(sessionId: string): boolean {
+  if (!active || active.id !== sessionId) return false;
+  // Casual-only at M3. Enforcement gating arrives in M4; main still validates the request.
+  if (active.mode === 'hardcore') return false;
+  beginClose();
+  return true;
+}
+
+export function spawnOverlaysForBreak(opts: {
+  isLongBreak: boolean;
+  durationMs: number;
+}): void {
+  if (active) return; // collapse simultaneous triggers — scheduler only emits one anyway.
+
+  const settings = getSettingsStore().get();
+  const displays = screen.getAllDisplays();
+  const primary = screen.getPrimaryDisplay();
+  const startedAt = Date.now();
+
+  const session: ActiveSession = {
+    id: randomUUID(),
+    isLongBreak: opts.isLongBreak,
+    durationMs: opts.durationMs,
+    startedAt,
+    visualAid: settings.overlay.visualAid,
+    mode: settings.enforcementMode,
+    primaryDisplayId: primary.id,
+    windows: [],
+    tickHandle: null,
+    durationHandle: null,
+    closeHandle: null,
+    closing: false
+  };
+  active = session;
+
+  for (const display of displays) {
+    const role: OverlayRole = display.id === primary.id ? 'primary' : 'secondary';
+    const win = createOverlayWindow(display, role);
+    session.windows.push({ win, displayId: display.id, role });
+  }
+
+  attachDisplayListeners();
+
+  // 1Hz tick for countdown sync; main is authoritative.
+  session.tickHandle = setInterval(() => broadcastTick(), TICK_MS);
+  broadcastTick();
+
+  // Natural break end.
+  session.durationHandle = setTimeout(() => beginClose(), opts.durationMs);
+}
+
+function broadcastTick(): void {
+  if (!active) return;
+  const now = Date.now();
+  const elapsedMs = Math.max(0, now - active.startedAt);
+  const remainingMs = Math.max(0, active.durationMs - elapsedMs);
+  const payload = {
+    sessionId: active.id,
+    remainingMs,
+    elapsedMs,
+    phase: active.closing ? ('closing' as const) : ('active' as const)
+  };
+  const parsed = overlayTickEventSchema.safeParse(payload);
+  if (!parsed.success) return;
+  for (const record of active.windows) {
+    if (!record.win.isDestroyed()) {
+      record.win.webContents.send(ipcChannels.overlayTick, parsed.data);
+    }
+  }
+}
+
+function beginClose(): void {
+  if (!active || active.closing) return;
+  active.closing = true;
+  broadcastTick();
+  if (active.tickHandle) {
+    clearInterval(active.tickHandle);
+    active.tickHandle = null;
+  }
+  if (active.durationHandle) {
+    clearTimeout(active.durationHandle);
+    active.durationHandle = null;
+  }
+  active.closeHandle = setTimeout(() => destroyActive(), FADE_OUT_MS);
+}
+
+function destroyActive(): void {
+  if (!active) return;
+  for (const record of active.windows) {
+    if (!record.win.isDestroyed()) record.win.destroy();
+  }
+  active = null;
+  detachDisplayListeners();
+}
+
+function createOverlayWindow(display: Display, role: OverlayRole): BrowserWindow {
+  const { bounds } = display;
+  const win = new BrowserWindow({
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
+    frame: false,
+    show: false,
+    resizable: false,
+    movable: false,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: true,
+    // simpleFullscreen avoids macOS's "new space" behavior in dev; on Windows fullscreen is native.
+    simpleFullscreen: process.platform === 'darwin',
+    fullscreen: process.platform !== 'darwin',
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    focusable: true,
+    closable: false,
+    hasShadow: false,
+    backgroundColor: role === 'primary' ? '#0a1622' : '#000000',
+    webPreferences: {
+      preload: path.join(__dirname, '../preload/index.js'),
+      contextIsolation: true,
+      sandbox: true,
+      nodeIntegration: false,
+      webSecurity: true,
+      spellcheck: false
+    }
+  });
+
+  win.setMenuBarVisibility(false);
+  win.setAlwaysOnTop(true, 'screen-saver');
+  win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+
+  win.once('ready-to-show', () => {
+    if (win.isDestroyed()) return;
+    win.show();
+    win.focus();
+  });
+
+  win.on('blur', () => {
+    if (win.isDestroyed()) return;
+    // Re-assert always-on-top so the overlay can't be dodged by alt-tab during a break.
+    win.setAlwaysOnTop(true, 'screen-saver');
+  });
+
+  const devUrl = process.env['ELECTRON_RENDERER_URL'];
+  const route = role === 'primary' ? '/overlay/primary' : '/overlay/secondary';
+  if (devUrl) {
+    void win.loadURL(`${devUrl}#${route}`);
+  } else {
+    void win.loadFile(path.join(__dirname, '../renderer/index.html'), { hash: route });
+  }
+
+  return win;
+}
+
+function attachDisplayListeners(): void {
+  if (displayListenersAttached) return;
+  displayListenersAttached = true;
+  screen.on('display-added', handleDisplayAdded);
+  screen.on('display-removed', handleDisplayRemoved);
+}
+
+function detachDisplayListeners(): void {
+  if (!displayListenersAttached) return;
+  displayListenersAttached = false;
+  screen.removeListener('display-added', handleDisplayAdded);
+  screen.removeListener('display-removed', handleDisplayRemoved);
+}
+
+function handleDisplayAdded(_event: Electron.Event, display: Display): void {
+  if (!active) return;
+  // Hot-plugged display always gets the dimmed lockout, never the primary UI.
+  const win = createOverlayWindow(display, 'secondary');
+  active.windows.push({ win, displayId: display.id, role: 'secondary' });
+}
+
+function handleDisplayRemoved(_event: Electron.Event, display: Display): void {
+  if (!active) return;
+  const idx = active.windows.findIndex((w) => w.displayId === display.id);
+  if (idx < 0) return;
+  const [record] = active.windows.splice(idx, 1);
+  if (!record.win.isDestroyed()) record.win.destroy();
+  if (active.windows.length === 0) {
+    beginClose();
+  }
+}
+
+export function wireOverlayManagerToScheduler(): () => void {
+  return getScheduler().on((event) => {
+    if (event.type === 'break-due') {
+      spawnOverlaysForBreak({
+        isLongBreak: event.payload.isLongBreak,
+        durationMs: event.payload.durationMs
+      });
+    }
+  });
+}
+
+// Sanity check for the OverlayInitPayload contract used by the IPC handler.
+export const _initPayloadSchema = overlayInitPayloadSchema;

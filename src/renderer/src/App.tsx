@@ -1,5 +1,6 @@
 import { SettingsDevPanel } from './views/SettingsDevPanel';
 import { SchedulerDevPanel } from './views/SchedulerDevPanel';
+import { BreaksSettings } from './views/BreaksSettings';
 import { BreathingMark } from './components/BreathingMark';
 import { motion } from 'motion/react';
 
@@ -15,7 +16,7 @@ export function App() {
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="text-xs uppercase tracking-[0.18em] text-muted-foreground"
             >
-              Horizon — M2
+              Horizon — M3
             </motion.p>
             <motion.h1
               initial={{ opacity: 0, y: 8 }}
@@ -32,7 +33,7 @@ export function App() {
               transition={{ duration: 0.6, delay: 0.25 }}
               className="mt-4 max-w-sm text-sm font-light text-muted-foreground"
             >
-              Scheduler engine is online. The tray watches; the popover whispers a countdown.
+              The overlay arrives. A warning whispers, the gradient blooms, the timer holds.
             </motion.p>
           </div>
           <motion.div
@@ -43,6 +44,8 @@ export function App() {
             <BreathingMark size={80} />
           </motion.div>
         </header>
+
+        <BreaksSettings />
 
         <SchedulerDevPanel />
 

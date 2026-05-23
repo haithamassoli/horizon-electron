@@ -5,6 +5,14 @@ import {
   schedulerStateSchema,
   trayActionSchema
 } from './scheduler';
+import {
+  overlayInitPayloadSchema,
+  overlaySkipRequestSchema,
+  overlaySkipResponseSchema,
+  overlayTickPayloadSchema,
+  preWarningInitPayloadSchema,
+  preWarningTickPayloadSchema
+} from './overlay';
 
 export const ipcChannels = {
   settingsGet: 'settings:get',
@@ -19,7 +27,15 @@ export const ipcChannels = {
 
   trayAction: 'tray:action',
 
-  popoverHide: 'popover:hide'
+  popoverHide: 'popover:hide',
+
+  overlayInit: 'overlay:init',
+  overlayTick: 'overlay:tick',
+  overlaySkip: 'overlay:skip',
+
+  preWarningInit: 'pre-warning:init',
+  preWarningTick: 'pre-warning:tick',
+  preWarningDismiss: 'pre-warning:dismiss'
 } as const;
 
 export type IpcChannel = (typeof ipcChannels)[keyof typeof ipcChannels];
@@ -49,6 +65,22 @@ export const trayActionResponseSchema = schedulerStateSchema;
 
 export const popoverHideRequestSchema = z.void();
 export const popoverHideResponseSchema = z.void();
+
+export const overlayInitRequestSchema = z.void();
+export const overlayInitResponseSchema = overlayInitPayloadSchema;
+
+export const overlayTickEventSchema = overlayTickPayloadSchema;
+
+export const overlaySkipRequestIpcSchema = overlaySkipRequestSchema;
+export const overlaySkipResponseIpcSchema = overlaySkipResponseSchema;
+
+export const preWarningInitRequestSchema = z.void();
+export const preWarningInitResponseSchema = preWarningInitPayloadSchema;
+
+export const preWarningTickEventSchema = preWarningTickPayloadSchema;
+
+export const preWarningDismissRequestSchema = z.void();
+export const preWarningDismissResponseSchema = z.void();
 
 export type SettingsGetRequest = z.infer<typeof settingsGetRequestSchema>;
 export type SettingsGetResponse = z.infer<typeof settingsGetResponseSchema>;

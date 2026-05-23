@@ -8,10 +8,20 @@ import {
   stateChangedEventSchema,
   schedulerEventBroadcastSchema,
   trayActionResponseSchema,
+  overlayInitResponseSchema,
+  overlayTickEventSchema,
+  overlaySkipResponseIpcSchema,
+  preWarningInitResponseSchema,
+  preWarningTickEventSchema,
   type Settings,
   type SchedulerState,
   type SchedulerEvent,
-  type TrayAction
+  type TrayAction,
+  type OverlayInitPayload,
+  type OverlayTickPayload,
+  type OverlaySkipResponse,
+  type PreWarningInitPayload,
+  type PreWarningTickPayload
 } from '@shared/schemas';
 
 async function invokeAndParse<T>(
@@ -88,6 +98,48 @@ const horizon = {
   popover: {
     async hide(): Promise<void> {
       await ipcRenderer.invoke(ipcChannels.popoverHide);
+    }
+  },
+  overlay: {
+    async init(): Promise<OverlayInitPayload> {
+      return invokeAndParse(ipcChannels.overlayInit, undefined, (d) =>
+        overlayInitResponseSchema.safeParse(d)
+      );
+    },
+    async skip(sessionId: string): Promise<OverlaySkipResponse> {
+      return invokeAndParse(ipcChannels.overlaySkip, { sessionId }, (d) =>
+        overlaySkipResponseIpcSchema.safeParse(d)
+      );
+    },
+    onTick(listener: (payload: OverlayTickPayload) => void): () => void {
+      const wrapped = (_event: Electron.IpcRendererEvent, payload: unknown): void => {
+        const parsed = overlayTickEventSchema.safeParse(payload);
+        if (parsed.success) listener(parsed.data);
+      };
+      ipcRenderer.on(ipcChannels.overlayTick, wrapped);
+      return () => {
+        ipcRenderer.removeListener(ipcChannels.overlayTick, wrapped);
+      };
+    }
+  },
+  preWarning: {
+    async init(): Promise<PreWarningInitPayload> {
+      return invokeAndParse(ipcChannels.preWarningInit, undefined, (d) =>
+        preWarningInitResponseSchema.safeParse(d)
+      );
+    },
+    async dismiss(): Promise<void> {
+      await ipcRenderer.invoke(ipcChannels.preWarningDismiss);
+    },
+    onTick(listener: (payload: PreWarningTickPayload) => void): () => void {
+      const wrapped = (_event: Electron.IpcRendererEvent, payload: unknown): void => {
+        const parsed = preWarningTickEventSchema.safeParse(payload);
+        if (parsed.success) listener(parsed.data);
+      };
+      ipcRenderer.on(ipcChannels.preWarningTick, wrapped);
+      return () => {
+        ipcRenderer.removeListener(ipcChannels.preWarningTick, wrapped);
+      };
     }
   }
 } as const;

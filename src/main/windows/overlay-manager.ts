@@ -8,7 +8,9 @@ import {
   overlayTickEventSchema,
   type OverlayInitPayload,
   type OverlayRole,
-  type Settings
+  type OverlaySnoozeResponse,
+  type Settings,
+  type SnoozeCaps
 } from '@shared/schemas';
 import { getScheduler } from '../scheduler/scheduler';
 import { getSettingsStore } from '../store/settings-store';
@@ -16,6 +18,7 @@ import { getSettingsStore } from '../store/settings-store';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TICK_MS = 1_000;
 const FADE_OUT_MS = 250;
+const BALANCED_LOCKOUT_MS = 7_000;
 
 interface OverlayWindowRecord {
   win: BrowserWindow;
@@ -56,16 +59,57 @@ export function getOverlayInitPayload(webContentsId: number): OverlayInitPayload
     isLongBreak: active.isLongBreak,
     durationMs: active.durationMs,
     startedAt: active.startedAt,
-    visualAid: active.visualAid
+    visualAid: active.visualAid,
+    snoozeCaps: computeSnoozeCaps(),
+    balancedLockoutMs: active.mode === 'balanced' ? BALANCED_LOCKOUT_MS : 0
   };
 }
 
 export function requestOverlaySkip(sessionId: string): boolean {
   if (!active || active.id !== sessionId) return false;
-  // Casual-only at M3. Enforcement gating arrives in M4; main still validates the request.
   if (active.mode === 'hardcore') return false;
+  // Balanced 7s lockout is enforced renderer-side (UX); main accepts skip whenever the renderer
+  // sends it. The renderer never sends it during lockout.
   beginClose();
   return true;
+}
+
+export function requestOverlaySnooze(sessionId: string): OverlaySnoozeResponse {
+  if (!active) return { accepted: false, reason: 'no-session' };
+  if (active.id !== sessionId) return { accepted: false, reason: 'no-session' };
+  if (active.mode === 'hardcore') return { accepted: false, reason: 'mode-disallowed' };
+
+  const result = getScheduler().snooze();
+  if (!result.accepted) {
+    return { accepted: false, reason: result.reason };
+  }
+  beginClose();
+  return {
+    accepted: true,
+    newFireAt: result.newFireAt,
+    deferMs: result.deferMs,
+    snoozeCaps: computeSnoozeCaps()
+  };
+}
+
+export function requestOverlayPanic(sessionId: string): boolean {
+  if (!active || active.id !== sessionId) return false;
+  if (active.mode !== 'hardcore') return false;
+  beginClose();
+  return true;
+}
+
+function computeSnoozeCaps(): SnoozeCaps {
+  const settings = getSettingsStore().get();
+  const state = getScheduler().getState();
+  const session = settings.snooze.perSessionCap;
+  const day = settings.snooze.perDayCap;
+  return {
+    perSessionRemaining:
+      session === 'unlimited' ? 'unlimited' : Math.max(0, session - state.snoozesUsedThisSession),
+    perDayRemaining:
+      day === 'unlimited' ? 'unlimited' : Math.max(0, day - state.snoozesUsedToday)
+  };
 }
 
 export function spawnOverlaysForBreak(opts: {
@@ -97,7 +141,7 @@ export function spawnOverlaysForBreak(opts: {
 
   for (const display of displays) {
     const role: OverlayRole = display.id === primary.id ? 'primary' : 'secondary';
-    const win = createOverlayWindow(display, role);
+    const win = createOverlayWindow(display, role, session.mode);
     session.windows.push({ win, displayId: display.id, role });
   }
 
@@ -155,7 +199,11 @@ function destroyActive(): void {
   detachDisplayListeners();
 }
 
-function createOverlayWindow(display: Display, role: OverlayRole): BrowserWindow {
+function createOverlayWindow(
+  display: Display,
+  role: OverlayRole,
+  mode: Settings['enforcementMode']
+): BrowserWindow {
   const { bounds } = display;
   const win = new BrowserWindow({
     x: bounds.x,
@@ -172,6 +220,8 @@ function createOverlayWindow(display: Display, role: OverlayRole): BrowserWindow
     // simpleFullscreen avoids macOS's "new space" behavior in dev; on Windows fullscreen is native.
     simpleFullscreen: process.platform === 'darwin',
     fullscreen: process.platform !== 'darwin',
+    // Kiosk mode in Hardcore blocks alt-tab / win-key escape paths.
+    kiosk: mode === 'hardcore' && process.platform !== 'darwin',
     alwaysOnTop: true,
     skipTaskbar: true,
     focusable: true,
@@ -232,7 +282,7 @@ function detachDisplayListeners(): void {
 function handleDisplayAdded(_event: Electron.Event, display: Display): void {
   if (!active) return;
   // Hot-plugged display always gets the dimmed lockout, never the primary UI.
-  const win = createOverlayWindow(display, 'secondary');
+  const win = createOverlayWindow(display, 'secondary', active.mode);
   active.windows.push({ win, displayId: display.id, role: 'secondary' });
 }
 

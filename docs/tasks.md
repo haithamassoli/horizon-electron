@@ -93,25 +93,25 @@ Sizing: **S** ≈ a few days, **M** ≈ ~1 week, **L** ≈ ~2 weeks (solo, focus
 
 **Tasks:**
 
-1. [ ] Add `enforcementMode: 'casual' | 'balanced' | 'hardcore'` to settings schema; default `balanced`.
-2. [ ] Pass current mode to overlay renderers via a query param + initial state IPC.
-3. [ ] Build the `ModeCard` Shadcn component (gradient header, name, one-line description, selected state with soft glow).
-4. [ ] Render the three mode cards in the settings page (Mode section); selection updates `settings:set` immediately.
-5. [ ] Implement Balanced behavior in overlay: skip button rendered but disabled, count down 7s, then enable with a soft color transition (200ms).
-6. [ ] Implement Balanced keyboard behavior: Space / Enter / Esc no-op for first 7s, then active.
-7. [ ] Implement Hardcore behavior: skip + snooze buttons not rendered; set `kiosk: true` on overlay windows.
-8. [ ] Disable all standard keyboard dismissal paths in Hardcore.
-9. [ ] Implement the Hardcore panic exit: global keyboard listener inside overlay detects `Ctrl+Shift+Esc` held for 5 continuous seconds (release resets the counter). On trigger, dismiss all overlays.
-10. [ ] Add a small footnote on the Hardcore mode card: "Emergency exit: hold Ctrl+Shift+Esc for 5 seconds." Not prominent.
-11. [ ] Add the snooze button to the overlay (Casual + Balanced only). In Balanced, the 7s lockout applies to snooze as well as skip.
-12. [ ] Implement snooze in scheduler: defers current break by 5 min; long-break counter unchanged.
-13. [ ] Track `snoozesUsedThisSession` in main; reset on every idle-reset event.
-14. [ ] Track `snoozesUsedToday` in `electron-store`; reset at local midnight via a daily timer.
-15. [ ] Add per-session snooze cap setting (dropdown: 1, 2, 3, 5, unlimited; default unlimited).
-16. [ ] Add per-day snooze cap setting (dropdown: 1, 3, 5, 10, unlimited; default unlimited).
-17. [ ] When a cap is reached, render snooze button disabled with a small tooltip ("Daily snooze limit reached").
-18. [ ] Handle the snooze + long-break collision: if a snoozed short break would fire during a long break window, long break wins, no stack.
-19. [ ] Reactively hide the entire Snooze section in settings UI when mode is Hardcore.
+1. [x] Add `enforcementMode: 'casual' | 'balanced' | 'hardcore'` to settings schema; default `balanced`.
+2. [x] Pass current mode to overlay renderers via a query param + initial state IPC.
+3. [x] Build the `ModeCard` Shadcn component (gradient header, name, one-line description, selected state with soft glow).
+4. [x] Render the three mode cards in the settings page (Mode section); selection updates `settings:set` immediately.
+5. [x] Implement Balanced behavior in overlay: skip button rendered but disabled, count down 7s, then enable with a soft color transition (200ms).
+6. [x] Implement Balanced keyboard behavior: Space / Enter / Esc no-op for first 7s, then active.
+7. [x] Implement Hardcore behavior: skip + snooze buttons not rendered; set `kiosk: true` on overlay windows.
+8. [x] Disable all standard keyboard dismissal paths in Hardcore.
+9. [x] Implement the Hardcore panic exit: global keyboard listener inside overlay detects `Ctrl+Shift+Esc` held for 5 continuous seconds (release resets the counter). On trigger, dismiss all overlays.
+10. [x] Add a small footnote on the Hardcore mode card: "Emergency exit: hold Ctrl+Shift+Esc for 5 seconds." Not prominent.
+11. [x] Add the snooze button to the overlay (Casual + Balanced only). In Balanced, the 7s lockout applies to snooze as well as skip.
+12. [x] Implement snooze in scheduler: defers current break by 5 min; long-break counter unchanged.
+13. [x] Track `snoozesUsedThisSession` in main; reset on every idle-reset event.
+14. [x] Track `snoozesUsedToday` in `electron-store`; reset at local midnight via a daily timer.
+15. [x] Add per-session snooze cap setting (dropdown: 1, 2, 3, 5, unlimited; default unlimited).
+16. [x] Add per-day snooze cap setting (dropdown: 1, 3, 5, 10, unlimited; default unlimited).
+17. [x] When a cap is reached, render snooze button disabled with a small tooltip ("Daily snooze limit reached").
+18. [x] Handle the snooze + long-break collision: if a snoozed short break would fire during a long break window, long break wins, no stack.
+19. [x] Reactively hide the entire Snooze section in settings UI when mode is Hardcore.
 
 ---
 

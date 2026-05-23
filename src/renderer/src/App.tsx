@@ -1,6 +1,8 @@
 import { SettingsDevPanel } from './views/SettingsDevPanel';
 import { SchedulerDevPanel } from './views/SchedulerDevPanel';
 import { BreaksSettings } from './views/BreaksSettings';
+import { ModeSettings } from './views/ModeSettings';
+import { SnoozeSettings } from './views/SnoozeSettings';
 import { BreathingMark } from './components/BreathingMark';
 import { motion } from 'motion/react';
 
@@ -16,7 +18,7 @@ export function App() {
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="text-xs uppercase tracking-[0.18em] text-muted-foreground"
             >
-              Horizon — M3
+              Horizon — M4
             </motion.p>
             <motion.h1
               initial={{ opacity: 0, y: 8 }}
@@ -46,6 +48,10 @@ export function App() {
         </header>
 
         <BreaksSettings />
+
+        <ModeSettings />
+
+        <SnoozeSettings />
 
         <SchedulerDevPanel />
 

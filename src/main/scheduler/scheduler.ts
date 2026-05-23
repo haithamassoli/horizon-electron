@@ -1,10 +1,13 @@
 import { EventEmitter } from 'node:events';
 import type {
+  DailySnoozeCounter,
   PauseDuration,
   PersistedScheduler,
   SchedulerEvent,
   SchedulerState,
-  Settings
+  Settings,
+  SnoozeCap,
+  SnoozeRejectReason
 } from '@shared/schemas';
 import { getSettingsStore } from '../store/settings-store';
 import { getSchedulerStore } from '../store/scheduler-store';
@@ -12,12 +15,23 @@ import { getSchedulerStore } from '../store/scheduler-store';
 const MIN_MS = 60_000;
 const PRE_WARNING_MS = 60_000;
 const TICK_MS = 1_000;
+const SNOOZE_DEFER_MS = 5 * MIN_MS;
 
 interface SchedulerOptions {
   now?: () => number;
 }
 
 type Listener = (event: SchedulerEvent) => void;
+
+export type SnoozeResult =
+  | {
+      accepted: true;
+      newFireAt: number;
+      deferMs: number;
+      snoozesUsedThisSession: number;
+      snoozesUsedToday: number;
+    }
+  | { accepted: false; reason: SnoozeRejectReason };
 
 export class Scheduler {
   private readonly emitter = new EventEmitter();
@@ -27,12 +41,15 @@ export class Scheduler {
   private tickHandle: ReturnType<typeof setInterval> | null = null;
   private settingsUnsubscribe: (() => void) | null = null;
   private currentSettings: Settings;
+  private snoozesUsedThisSession = 0;
+  private dailySnooze: DailySnoozeCounter;
 
   constructor(opts: SchedulerOptions = {}) {
     this.now = opts.now ?? Date.now;
     this.currentSettings = getSettingsStore().get();
 
     const persisted = getSchedulerStore().get();
+    this.dailySnooze = rolloverDailySnooze(persisted.dailySnooze, this.now());
     this.state = this.computeInitialState(persisted);
     this.persist();
   }
@@ -112,6 +129,72 @@ export class Scheduler {
     this.preWarningFired = false;
   }
 
+  snooze(): SnoozeResult {
+    const now = this.now();
+
+    if (this.state.lifecycle !== 'running' || this.state.nextBreakAt === null) {
+      this.emit({ type: 'snooze-rejected', at: now, payload: { reason: 'not-running' } });
+      return { accepted: false, reason: 'not-running' };
+    }
+
+    this.rolloverIfNewDay(now);
+
+    const sessionCap = this.currentSettings.snooze.perSessionCap;
+    const dayCap = this.currentSettings.snooze.perDayCap;
+
+    if (capReached(sessionCap, this.snoozesUsedThisSession)) {
+      this.emit({ type: 'snooze-rejected', at: now, payload: { reason: 'cap-session' } });
+      return { accepted: false, reason: 'cap-session' };
+    }
+    if (capReached(dayCap, this.dailySnooze.count)) {
+      this.emit({ type: 'snooze-rejected', at: now, payload: { reason: 'cap-day' } });
+      return { accepted: false, reason: 'cap-day' };
+    }
+
+    // Long-break collision: if the upcoming break is already long, snooze is a no-op on duration —
+    // we defer but the consumed slot stays long. The "short" identity dissolves; counter unchanged.
+    // No stacking — a single deferred slot, replaced not added.
+    const newFireAt = now + SNOOZE_DEFER_MS;
+    this.snoozesUsedThisSession += 1;
+    this.dailySnooze = { date: this.dailySnooze.date, count: this.dailySnooze.count + 1 };
+
+    this.update({
+      nextBreakAt: newFireAt,
+      snoozesUsedThisSession: this.snoozesUsedThisSession,
+      snoozesUsedToday: this.dailySnooze.count
+    });
+    this.preWarningFired = false;
+
+    this.emit({
+      type: 'snooze-used',
+      at: now,
+      payload: {
+        newFireAt,
+        deferMs: SNOOZE_DEFER_MS,
+        snoozesUsedThisSession: this.snoozesUsedThisSession,
+        snoozesUsedToday: this.dailySnooze.count
+      }
+    });
+
+    return {
+      accepted: true,
+      newFireAt,
+      deferMs: SNOOZE_DEFER_MS,
+      snoozesUsedThisSession: this.snoozesUsedThisSession,
+      snoozesUsedToday: this.dailySnooze.count
+    };
+  }
+
+  /**
+   * Reset session counter — invoked by activity monitor (M5) on idle-resume.
+   * Safe to call before M5 wires the trigger.
+   */
+  resetSessionSnoozes(): void {
+    if (this.snoozesUsedThisSession === 0) return;
+    this.snoozesUsedThisSession = 0;
+    this.update({ snoozesUsedThisSession: 0 });
+  }
+
   // --- internals ---
 
   private computeInitialState(persisted: PersistedScheduler): SchedulerState {
@@ -128,6 +211,8 @@ export class Scheduler {
         longBreakCounter: persisted.longBreakCounter,
         isNextLong,
         deferredBreak: false,
+        snoozesUsedThisSession: 0,
+        snoozesUsedToday: this.dailySnooze.count,
         updatedAt: now
       };
     }
@@ -143,12 +228,15 @@ export class Scheduler {
       longBreakCounter: persisted.longBreakCounter,
       isNextLong,
       deferredBreak: false,
+      snoozesUsedThisSession: 0,
+      snoozesUsedToday: this.dailySnooze.count,
       updatedAt: now
     };
   }
 
   private tick(): void {
     const now = this.now();
+    this.rolloverIfNewDay(now);
 
     if (this.state.lifecycle === 'paused') {
       if (this.state.pausedUntil !== null && now >= this.state.pausedUntil) {
@@ -245,9 +333,37 @@ export class Scheduler {
     getSchedulerStore().set({
       lastBreakAt: this.state.lastBreakAt,
       longBreakCounter: this.state.longBreakCounter,
-      pausedUntil: this.state.pausedUntil
+      pausedUntil: this.state.pausedUntil,
+      dailySnooze: this.dailySnooze
     });
   }
+
+  private rolloverIfNewDay(now: number): void {
+    const next = rolloverDailySnooze(this.dailySnooze, now);
+    if (next.date !== this.dailySnooze.date) {
+      this.dailySnooze = next;
+      this.update({ snoozesUsedToday: 0 });
+    }
+  }
+}
+
+function rolloverDailySnooze(current: DailySnoozeCounter, now: number): DailySnoozeCounter {
+  const today = localDateString(now);
+  if (current.date === today) return current;
+  return { date: today, count: 0 };
+}
+
+function localDateString(now: number): string {
+  const d = new Date(now);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function capReached(cap: SnoozeCap, used: number): boolean {
+  if (cap === 'unlimited') return false;
+  return used >= cap;
 }
 
 function computePauseUntil(now: number, duration: PauseDuration): number {

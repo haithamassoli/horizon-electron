@@ -243,5 +243,9 @@ function describe(e: SchedulerEvent): string {
       return `${e.payload.isLongBreak ? 'long' : 'short'} · ${Math.round(e.payload.durationMs / 1000)}s${e.payload.manual ? ' · manual' : ''}`;
     case 'pause-expired':
       return `paused ${Math.round((e.payload.pausedUntil - e.payload.pausedAt) / 60_000)}m`;
+    case 'snooze-used':
+      return `+${Math.round(e.payload.deferMs / 60_000)}m · session=${e.payload.snoozesUsedThisSession} · day=${e.payload.snoozesUsedToday}`;
+    case 'snooze-rejected':
+      return `rejected · ${e.payload.reason}`;
   }
 }

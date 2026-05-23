@@ -9,6 +9,10 @@ import {
   overlayInitPayloadSchema,
   overlaySkipRequestSchema,
   overlaySkipResponseSchema,
+  overlaySnoozeRequestSchema,
+  overlaySnoozeResponseSchema,
+  overlayPanicRequestSchema,
+  overlayPanicResponseSchema,
   overlayTickPayloadSchema,
   preWarningInitPayloadSchema,
   preWarningTickPayloadSchema
@@ -32,6 +36,8 @@ export const ipcChannels = {
   overlayInit: 'overlay:init',
   overlayTick: 'overlay:tick',
   overlaySkip: 'overlay:skip',
+  overlaySnooze: 'overlay:snooze',
+  overlayPanic: 'overlay:panic',
 
   preWarningInit: 'pre-warning:init',
   preWarningTick: 'pre-warning:tick',
@@ -73,6 +79,12 @@ export const overlayTickEventSchema = overlayTickPayloadSchema;
 
 export const overlaySkipRequestIpcSchema = overlaySkipRequestSchema;
 export const overlaySkipResponseIpcSchema = overlaySkipResponseSchema;
+
+export const overlaySnoozeRequestIpcSchema = overlaySnoozeRequestSchema;
+export const overlaySnoozeResponseIpcSchema = overlaySnoozeResponseSchema;
+
+export const overlayPanicRequestIpcSchema = overlayPanicRequestSchema;
+export const overlayPanicResponseIpcSchema = overlayPanicResponseSchema;
 
 export const preWarningInitRequestSchema = z.void();
 export const preWarningInitResponseSchema = preWarningInitPayloadSchema;

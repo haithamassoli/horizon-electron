@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Settings, EnforcementMode } from '@shared/schemas';
+import type { Settings, EnforcementMode, SnoozeCap } from '@shared/schemas';
 
 interface SettingsState {
   settings: Settings | null;
@@ -17,6 +17,8 @@ interface UseSettingsResult extends SettingsState {
   setShortDurationSeconds: (seconds: number) => Promise<void>;
   setLongCadence: (count: number) => Promise<void>;
   setLongDurationMinutes: (minutes: number) => Promise<void>;
+  setSnoozePerSessionCap: (cap: SnoozeCap) => Promise<void>;
+  setSnoozePerDayCap: (cap: SnoozeCap) => Promise<void>;
 }
 
 export function useSettings(): UseSettingsResult {
@@ -83,6 +85,10 @@ export function useSettings(): UseSettingsResult {
     setLongCadence: (count) =>
       update((s) => ({ ...s, breaks: { ...s.breaks, longCadence: count } })),
     setLongDurationMinutes: (minutes) =>
-      update((s) => ({ ...s, breaks: { ...s.breaks, longDurationMinutes: minutes } }))
+      update((s) => ({ ...s, breaks: { ...s.breaks, longDurationMinutes: minutes } })),
+    setSnoozePerSessionCap: (cap) =>
+      update((s) => ({ ...s, snooze: { ...s.snooze, perSessionCap: cap } })),
+    setSnoozePerDayCap: (cap) =>
+      update((s) => ({ ...s, snooze: { ...s.snooze, perDayCap: cap } }))
   };
 }

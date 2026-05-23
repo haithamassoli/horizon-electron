@@ -17,15 +17,25 @@ export const schedulerStateSchema = z.object({
   longBreakCounter: z.number().int().min(0),
   isNextLong: z.boolean(),
   deferredBreak: z.boolean(),
+  snoozesUsedThisSession: z.number().int().min(0),
+  snoozesUsedToday: z.number().int().min(0),
   updatedAt: z.number()
 });
 
 export type SchedulerState = z.infer<typeof schedulerStateSchema>;
 
+export const dailySnoozeCounterSchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  count: z.number().int().min(0)
+});
+
+export type DailySnoozeCounter = z.infer<typeof dailySnoozeCounterSchema>;
+
 export const persistedSchedulerSchema = z.object({
   lastBreakAt: z.number().nullable(),
   longBreakCounter: z.number().int().min(0),
-  pausedUntil: z.number().nullable()
+  pausedUntil: z.number().nullable(),
+  dailySnooze: dailySnoozeCounterSchema
 });
 
 export type PersistedScheduler = z.infer<typeof persistedSchedulerSchema>;
@@ -33,15 +43,38 @@ export type PersistedScheduler = z.infer<typeof persistedSchedulerSchema>;
 export const defaultPersistedScheduler: PersistedScheduler = {
   lastBreakAt: null,
   longBreakCounter: 0,
-  pausedUntil: null
+  pausedUntil: null,
+  dailySnooze: { date: '1970-01-01', count: 0 }
 };
 
 export const schedulerEventTypeSchema = z.enum([
   'state-changed',
   'pre-warning-due',
   'break-due',
-  'pause-expired'
+  'pause-expired',
+  'snooze-used',
+  'snooze-rejected'
 ]);
+
+export const snoozeRejectReasonSchema = z.enum([
+  'cap-session',
+  'cap-day',
+  'not-running',
+  'long-break-collision'
+]);
+
+export type SnoozeRejectReason = z.infer<typeof snoozeRejectReasonSchema>;
+
+export const snoozeUsedPayloadSchema = z.object({
+  newFireAt: z.number(),
+  deferMs: z.number().int().positive(),
+  snoozesUsedThisSession: z.number().int().min(0),
+  snoozesUsedToday: z.number().int().min(0)
+});
+
+export const snoozeRejectedPayloadSchema = z.object({
+  reason: snoozeRejectReasonSchema
+});
 
 export type SchedulerEventType = z.infer<typeof schedulerEventTypeSchema>;
 
@@ -81,6 +114,16 @@ export const schedulerEventSchema = z.discriminatedUnion('type', [
     type: z.literal('pause-expired'),
     at: z.number(),
     payload: pauseExpiredPayloadSchema
+  }),
+  z.object({
+    type: z.literal('snooze-used'),
+    at: z.number(),
+    payload: snoozeUsedPayloadSchema
+  }),
+  z.object({
+    type: z.literal('snooze-rejected'),
+    at: z.number(),
+    payload: snoozeRejectedPayloadSchema
   })
 ]);
 

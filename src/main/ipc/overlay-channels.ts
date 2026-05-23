@@ -5,12 +5,21 @@ import {
   overlayInitResponseSchema,
   overlaySkipRequestIpcSchema,
   overlaySkipResponseIpcSchema,
+  overlaySnoozeRequestIpcSchema,
+  overlaySnoozeResponseIpcSchema,
+  overlayPanicRequestIpcSchema,
+  overlayPanicResponseIpcSchema,
   preWarningInitRequestSchema,
   preWarningInitResponseSchema,
   preWarningDismissRequestSchema,
   preWarningDismissResponseSchema
 } from '@shared/schemas';
-import { getOverlayInitPayload, requestOverlaySkip } from '../windows/overlay-manager';
+import {
+  getOverlayInitPayload,
+  requestOverlayPanic,
+  requestOverlaySkip,
+  requestOverlaySnooze
+} from '../windows/overlay-manager';
 import {
   dismissPreWarningFromRenderer,
   getPreWarningInitPayload
@@ -35,6 +44,20 @@ export function registerOverlayChannels(): void {
     request: overlaySkipRequestIpcSchema,
     response: overlaySkipResponseIpcSchema,
     handler: ({ sessionId }) => ({ accepted: requestOverlaySkip(sessionId) })
+  });
+
+  registerHandler({
+    channel: ipcChannels.overlaySnooze,
+    request: overlaySnoozeRequestIpcSchema,
+    response: overlaySnoozeResponseIpcSchema,
+    handler: ({ sessionId }) => requestOverlaySnooze(sessionId)
+  });
+
+  registerHandler({
+    channel: ipcChannels.overlayPanic,
+    request: overlayPanicRequestIpcSchema,
+    response: overlayPanicResponseIpcSchema,
+    handler: ({ sessionId }) => ({ accepted: requestOverlayPanic(sessionId) })
   });
 
   registerHandler({

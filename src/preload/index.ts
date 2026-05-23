@@ -11,6 +11,8 @@ import {
   overlayInitResponseSchema,
   overlayTickEventSchema,
   overlaySkipResponseIpcSchema,
+  overlaySnoozeResponseIpcSchema,
+  overlayPanicResponseIpcSchema,
   preWarningInitResponseSchema,
   preWarningTickEventSchema,
   type Settings,
@@ -20,6 +22,8 @@ import {
   type OverlayInitPayload,
   type OverlayTickPayload,
   type OverlaySkipResponse,
+  type OverlaySnoozeResponse,
+  type OverlayPanicResponse,
   type PreWarningInitPayload,
   type PreWarningTickPayload
 } from '@shared/schemas';
@@ -109,6 +113,16 @@ const horizon = {
     async skip(sessionId: string): Promise<OverlaySkipResponse> {
       return invokeAndParse(ipcChannels.overlaySkip, { sessionId }, (d) =>
         overlaySkipResponseIpcSchema.safeParse(d)
+      );
+    },
+    async snooze(sessionId: string): Promise<OverlaySnoozeResponse> {
+      return invokeAndParse(ipcChannels.overlaySnooze, { sessionId }, (d) =>
+        overlaySnoozeResponseIpcSchema.safeParse(d)
+      );
+    },
+    async panic(sessionId: string): Promise<OverlayPanicResponse> {
+      return invokeAndParse(ipcChannels.overlayPanic, { sessionId }, (d) =>
+        overlayPanicResponseIpcSchema.safeParse(d)
       );
     },
     onTick(listener: (payload: OverlayTickPayload) => void): () => void {

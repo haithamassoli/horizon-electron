@@ -7,6 +7,13 @@ export type OverlayRole = z.infer<typeof overlayRoleSchema>;
 export const overlayPhaseSchema = z.enum(['active', 'closing']);
 export type OverlayPhase = z.infer<typeof overlayPhaseSchema>;
 
+export const snoozeCapsSchema = z.object({
+  perSessionRemaining: z.union([z.number().int().min(0), z.literal('unlimited')]),
+  perDayRemaining: z.union([z.number().int().min(0), z.literal('unlimited')])
+});
+
+export type SnoozeCaps = z.infer<typeof snoozeCapsSchema>;
+
 export const overlayInitPayloadSchema = z.object({
   sessionId: z.string(),
   role: overlayRoleSchema,
@@ -14,7 +21,9 @@ export const overlayInitPayloadSchema = z.object({
   isLongBreak: z.boolean(),
   durationMs: z.number().int().positive(),
   startedAt: z.number().int(),
-  visualAid: visualAidSchema
+  visualAid: visualAidSchema,
+  snoozeCaps: snoozeCapsSchema,
+  balancedLockoutMs: z.number().int().nonnegative()
 });
 
 export type OverlayInitPayload = z.infer<typeof overlayInitPayloadSchema>;
@@ -39,6 +48,39 @@ export const overlaySkipResponseSchema = z.object({
 });
 
 export type OverlaySkipResponse = z.infer<typeof overlaySkipResponseSchema>;
+
+export const overlaySnoozeRequestSchema = z.object({
+  sessionId: z.string()
+});
+
+export type OverlaySnoozeRequest = z.infer<typeof overlaySnoozeRequestSchema>;
+
+export const overlaySnoozeResponseSchema = z.discriminatedUnion('accepted', [
+  z.object({
+    accepted: z.literal(true),
+    newFireAt: z.number(),
+    deferMs: z.number().int().positive(),
+    snoozeCaps: snoozeCapsSchema
+  }),
+  z.object({
+    accepted: z.literal(false),
+    reason: z.enum(['cap-session', 'cap-day', 'not-running', 'mode-disallowed', 'no-session', 'long-break-collision'])
+  })
+]);
+
+export type OverlaySnoozeResponse = z.infer<typeof overlaySnoozeResponseSchema>;
+
+export const overlayPanicRequestSchema = z.object({
+  sessionId: z.string()
+});
+
+export type OverlayPanicRequest = z.infer<typeof overlayPanicRequestSchema>;
+
+export const overlayPanicResponseSchema = z.object({
+  accepted: z.boolean()
+});
+
+export type OverlayPanicResponse = z.infer<typeof overlayPanicResponseSchema>;
 
 // Pre-break warning toast contracts.
 

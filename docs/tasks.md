@@ -136,7 +136,7 @@ Sizing: **S** ≈ a few days, **M** ≈ ~1 week, **L** ≈ ~2 weeks (solo, focus
 11. [x] When `suppressed` becomes true and a break is due, set `deferredBreak: true` (single slot). Additional triggers while suppressed collapse — only one deferred break ever queued.
 12. [x] On `suppressed` becoming false, start a 30s buffer timer. After the buffer, if `deferredBreak`, fire the standard 60s pre-break warning then the overlay.
 13. [x] If `suppressed` becomes true again during the 60s warning or the 30s buffer, cancel and re-queue.
-14. [ ] Wire blink reminder to the same `suppressed` state — if suppressed, blink fires are silent skips (no queue, no defer). _(SuppressionGate exposed via `getSuppressionGate()` — M6 will subscribe.)_
+14. [x] Wire blink reminder to the same `suppressed` state — if suppressed, blink fires are silent skips (no queue, no defer).
 15. [x] Add a "Deferred — meeting active" string to the tray popover state when applicable.
 16. [ ] Acceptance check: with a 2-min interval, start a Zoom call, verify no overlay fires; end the call, verify the deferred break fires 30s + 60s later.
 
@@ -150,16 +150,16 @@ Sizing: **S** ≈ a few days, **M** ≈ ~1 week, **L** ≈ ~2 weeks (solo, focus
 
 **Tasks:**
 
-1. [ ] Add blink reminder settings to schema (`enabled: bool`, default true; `intervalMinutes: number`, default 5, range 5–30).
-2. [ ] Implement `BlinkScheduler` in main — independent timer from the break scheduler.
-3. [ ] Subscribe `BlinkScheduler` to the `SuppressionGate`; when suppressed, silently skip the tick (no queue).
-4. [ ] Implement the pulse overlay window factory: `frame: false`, `transparent: true`, `alwaysOnTop: true`, `skipTaskbar: true`, `focusable: false`, `setIgnoreMouseEvents(true, { forward: true })`.
-5. [ ] Size the pulse window to full display bounds per `screen.getAllDisplays()`; spawn one per display per tick.
-6. [ ] Build the pulse renderer: thin gradient ring at the screen edges, Framer Motion opacity animation `0 → 0.35 → 0` over 1.2s ease-in-out.
-7. [ ] Auto-destroy the window after the animation completes (1.3s timeout for safety).
-8. [ ] Add a toggle for blink reminder to settings (default on).
-9. [ ] Add an interval slider (5–30 min, step 1) to settings.
-10. [ ] Pause blink reminders during manual pause and outside office hours (same gates as breaks).
+1. [x] Add blink reminder settings to schema (`enabled: bool`, default true; `intervalMinutes: number`, default 5, range 5–30).
+2. [x] Implement `BlinkScheduler` in main — independent timer from the break scheduler.
+3. [x] Subscribe `BlinkScheduler` to the `SuppressionGate`; when suppressed, silently skip the tick (no queue).
+4. [x] Implement the pulse overlay window factory: `frame: false`, `transparent: true`, `alwaysOnTop: true`, `skipTaskbar: true`, `focusable: false`, `setIgnoreMouseEvents(true, { forward: true })`.
+5. [x] Size the pulse window to full display bounds per `screen.getAllDisplays()`; spawn one per display per tick.
+6. [x] Build the pulse renderer: thin gradient ring at the screen edges, Framer Motion opacity animation `0 → 0.35 → 0` over 1.2s ease-in-out.
+7. [x] Auto-destroy the window after the animation completes (1.3s timeout for safety).
+8. [x] Add a toggle for blink reminder to settings (default on).
+9. [x] Add an interval slider (5–30 min, step 1) to settings.
+10. [x] Pause blink reminders during manual pause and outside office hours (same gates as breaks). _(Manual pause covered via scheduler lifecycle; outside-office-hours lifecycle wires in M8 — gate already honored.)_
 
 ---
 

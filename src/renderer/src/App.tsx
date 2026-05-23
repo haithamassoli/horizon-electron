@@ -3,6 +3,7 @@ import { SchedulerDevPanel } from './views/SchedulerDevPanel';
 import { BreaksSettings } from './views/BreaksSettings';
 import { ModeSettings } from './views/ModeSettings';
 import { SnoozeSettings } from './views/SnoozeSettings';
+import { BlinkSettings } from './views/BlinkSettings';
 import { BreathingMark } from './components/BreathingMark';
 import { motion } from 'motion/react';
 
@@ -52,6 +53,8 @@ export function App() {
         <ModeSettings />
 
         <SnoozeSettings />
+
+        <BlinkSettings />
 
         <SchedulerDevPanel />
 

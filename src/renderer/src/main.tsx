@@ -6,6 +6,7 @@ import { PopoverView } from './views/PopoverView';
 import { OverlayPrimaryView } from './views/OverlayPrimaryView';
 import { OverlaySecondaryView } from './views/OverlaySecondaryView';
 import { PreWarningView } from './views/PreWarningView';
+import { BlinkPulseView } from './views/BlinkPulseView';
 import './index.css';
 
 const container = document.getElementById('root');
@@ -14,7 +15,13 @@ if (!container) throw new Error('root element missing');
 const hash = window.location.hash;
 
 function pickRoute(): {
-  view: 'settings' | 'popover' | 'overlay-primary' | 'overlay-secondary' | 'pre-warning';
+  view:
+    | 'settings'
+    | 'popover'
+    | 'overlay-primary'
+    | 'overlay-secondary'
+    | 'pre-warning'
+    | 'blink';
   bodyClass: string | null;
 } {
   if (hash.startsWith('#/popover')) return { view: 'popover', bodyClass: 'popover-host' };
@@ -24,6 +31,7 @@ function pickRoute(): {
     return { view: 'overlay-secondary', bodyClass: 'overlay-host overlay-host-secondary' };
   if (hash.startsWith('#/pre-warning'))
     return { view: 'pre-warning', bodyClass: 'pre-warning-host-body' };
+  if (hash.startsWith('#/blink')) return { view: 'blink', bodyClass: 'blink-host' };
   return { view: 'settings', bodyClass: null };
 }
 
@@ -42,6 +50,8 @@ function renderRoute() {
       return <OverlaySecondaryView />;
     case 'pre-warning':
       return <PreWarningView />;
+    case 'blink':
+      return <BlinkPulseView />;
     case 'settings':
     default:
       return (

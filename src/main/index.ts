@@ -10,6 +10,7 @@ import { createTray, destroyTray } from './tray/tray';
 import { wireOverlayManagerToScheduler } from './windows/overlay-manager';
 import { wirePreWarningToScheduler } from './windows/pre-warning-window';
 import { startActivityMonitors } from './activity';
+import { startBlinkModule } from './blink';
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -23,6 +24,7 @@ app.on('second-instance', () => {
 let unsubscribeOverlay: (() => void) | null = null;
 let unsubscribePreWarning: (() => void) | null = null;
 let stopActivityMonitors: (() => void) | null = null;
+let stopBlink: (() => void) | null = null;
 
 app.whenReady().then(async () => {
   getSettingsStore();
@@ -37,6 +39,7 @@ app.whenReady().then(async () => {
   unsubscribeOverlay = wireOverlayManagerToScheduler();
   unsubscribePreWarning = wirePreWarningToScheduler();
   stopActivityMonitors = await startActivityMonitors();
+  stopBlink = startBlinkModule();
   createTray();
   showSettingsWindow();
 
@@ -52,6 +55,8 @@ app.on('before-quit', () => {
   unsubscribePreWarning = null;
   stopActivityMonitors?.();
   stopActivityMonitors = null;
+  stopBlink?.();
+  stopBlink = null;
   destroyTray();
 });
 

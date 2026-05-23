@@ -1,0 +1,168 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@fontsource-variable/geist/index.css';
+@import '@fontsource/instrument-serif/400.css';
+@import '@fontsource/instrument-serif/400-italic.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Soft light-blue brand. OKLCH for perceptual evenness. */
+  --background: oklch(0.985 0.005 230);
+  --foreground: oklch(0.26 0.025 240);
+
+  --card: oklch(0.99 0.003 230);
+  --card-foreground: oklch(0.26 0.025 240);
+
+  --popover: oklch(0.99 0.003 230);
+  --popover-foreground: oklch(0.26 0.025 240);
+
+  --primary: oklch(0.78 0.07 230);
+  --primary-foreground: oklch(0.22 0.04 240);
+
+  --secondary: oklch(0.94 0.012 230);
+  --secondary-foreground: oklch(0.32 0.03 240);
+
+  --muted: oklch(0.94 0.012 230);
+  --muted-foreground: oklch(0.5 0.018 240);
+
+  --accent: oklch(0.93 0.024 230);
+  --accent-foreground: oklch(0.26 0.025 240);
+
+  --destructive: oklch(0.62 0.18 25);
+  --destructive-foreground: oklch(0.985 0.005 230);
+
+  --border: oklch(0.91 0.013 230);
+  --input: oklch(0.93 0.014 230);
+  --ring: oklch(0.78 0.07 230 / 0.55);
+
+  --chart-1: oklch(0.78 0.07 230);
+  --chart-2: oklch(0.7 0.06 200);
+  --chart-3: oklch(0.66 0.08 260);
+  --chart-4: oklch(0.84 0.05 215);
+  --chart-5: oklch(0.6 0.05 250);
+
+  --radius: 0.625rem;
+}
+
+.dark {
+  --background: oklch(0.165 0.018 240);
+  --foreground: oklch(0.93 0.012 230);
+
+  --card: oklch(0.195 0.02 240);
+  --card-foreground: oklch(0.93 0.012 230);
+
+  --popover: oklch(0.195 0.02 240);
+  --popover-foreground: oklch(0.93 0.012 230);
+
+  --primary: oklch(0.78 0.08 230);
+  --primary-foreground: oklch(0.16 0.02 240);
+
+  --secondary: oklch(0.23 0.024 240);
+  --secondary-foreground: oklch(0.92 0.012 230);
+
+  --muted: oklch(0.23 0.024 240);
+  --muted-foreground: oklch(0.66 0.018 230);
+
+  --accent: oklch(0.27 0.028 240);
+  --accent-foreground: oklch(0.93 0.012 230);
+
+  --destructive: oklch(0.55 0.17 25);
+  --destructive-foreground: oklch(0.93 0.012 230);
+
+  --border: oklch(0.28 0.025 240);
+  --input: oklch(0.28 0.025 240);
+  --ring: oklch(0.78 0.08 230 / 0.55);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
+
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Helvetica, sans-serif;
+  --font-display: 'Instrument Serif', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  html {
+    font-feature-settings: 'ss01', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-weight: 300;
+    letter-spacing: -0.005em;
+  }
+
+  ::selection {
+    background-color: oklch(0.78 0.07 230 / 0.35);
+    color: var(--color-foreground);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+  }
+
+  /* Soft breathing gradient used on the break overlay (M3) and previewed in M1. */
+  .breathing-surface {
+    background:
+      radial-gradient(circle at 20% 20%, oklch(0.92 0.04 230 / 0.55), transparent 55%),
+      radial-gradient(circle at 80% 75%, oklch(0.86 0.07 220 / 0.45), transparent 60%),
+      linear-gradient(180deg, var(--color-background), var(--color-background));
+  }
+
+  .dark .breathing-surface {
+    background:
+      radial-gradient(circle at 20% 20%, oklch(0.45 0.06 230 / 0.4), transparent 55%),
+      radial-gradient(circle at 80% 75%, oklch(0.4 0.07 220 / 0.35), transparent 60%),
+      linear-gradient(180deg, var(--color-background), var(--color-background));
+  }
+}

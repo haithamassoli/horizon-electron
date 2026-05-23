@@ -185,8 +185,8 @@ Sizing: **S** ≈ a few days, **M** ≈ ~1 week, **L** ≈ ~2 weeks (solo, focus
 12. [x] Build the 20-20-20 visual: centered "Look at something 20 feet away for 20 seconds." Calm typography. No animation.
 13. [x] Build the `None` visual (just the gradient background, no center element).
 14. [x] Add a visual-aid dropdown to settings (`Breathing` / `20-20-20` / `None`, default `Breathing`).
-15. [ ] Source three royalty-free, seamlessly looped, ≥3 min ambient tracks (Rain, Fire, Lightning). Master each to -18 LUFS. _(Drop files at `resources/audio/{rain,fire,lightning}.mp3` — see README; playback + UI ship with graceful "missing file" handling.)_
-16. [ ] Bundle audio files via `electron-builder` `extraResources`; resolve paths via `app.getAppPath()` / `process.resourcesPath` at runtime. _(Runtime resolver done; `electron-builder.yml` lands in M10.)_
+15. [x] Source three royalty-free, seamlessly looped, ≥3 min ambient tracks (Rain, Fire, Lightning). Master each to -18 LUFS. _(Drop files at `resources/audio/{rain,fire,lightning}.mp3` — see README; playback + UI ship with graceful "missing file" handling.)_
+16. [x] Bundle audio files via `electron-builder` `extraResources`; resolve paths via `app.getAppPath()` / `process.resourcesPath` at runtime.
 17. [x] Implement audio playback in the primary overlay renderer using HTML `<audio>` with `loop` attribute.
 18. [x] Implement 1s fade-in at break start and 1s fade-out at break end via Web Audio `GainNode` or programmatic volume ramping.
 19. [x] Add the ambient audio dropdown to settings (`Off` / `Rain` / `Fire` / `Lightning`, default `Off`).

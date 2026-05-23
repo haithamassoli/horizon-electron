@@ -1,0 +1,5 @@
+extraResources:
+  - from: resources/audio
+    to: audio
+    filter:
+      - "*.mp3"

@@ -1,13 +1,19 @@
 # Ambient audio
 
 Horizon's break overlay can play one of three royalty-free ambient tracks during a
-break. Drop the audio files here, named exactly:
+break. The bundled v1 tracks are original generated ambience, named exactly:
 
 - `rain.mp3`
 - `fire.mp3`
 - `lightning.mp3`
 
 ## Sourcing
+
+The checked-in v1 files were synthesized locally with FFmpeg noise/sine sources,
+then normalized to roughly **-18 LUFS**. They are original project assets and can
+ship royalty-free.
+
+If replacing them later, keep the same filenames and constraints:
 
 Pick license-clear, seamlessly looped tracks at least 3 minutes long. Master each to
 roughly **−18 LUFS** so volumes stay consistent across tracks (the app has no volume

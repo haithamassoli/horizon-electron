@@ -38,5 +38,14 @@ export default [
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
       'no-console': ['warn', { allow: ['warn', 'error', 'info'] }]
     }
+  },
+  {
+    files: ['scripts/**/*.mjs', 'scripts/**/*.js'],
+    languageOptions: {
+      globals: { ...globals.node }
+    },
+    rules: {
+      'no-console': 'off'
+    }
   }
 ];

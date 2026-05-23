@@ -4,7 +4,14 @@ import {
   settingsGetResponseSchema,
   settingsSetResponseSchema,
   settingsChangedEventSchema,
-  type Settings
+  stateGetResponseSchema,
+  stateChangedEventSchema,
+  schedulerEventBroadcastSchema,
+  trayActionResponseSchema,
+  type Settings,
+  type SchedulerState,
+  type SchedulerEvent,
+  type TrayAction
 } from '@shared/schemas';
 
 async function invokeAndParse<T>(
@@ -40,6 +47,47 @@ const horizon = {
       return () => {
         ipcRenderer.removeListener(ipcChannels.settingsChanged, wrapped);
       };
+    }
+  },
+  state: {
+    async get(): Promise<SchedulerState> {
+      return invokeAndParse(ipcChannels.stateGet, undefined, (d) =>
+        stateGetResponseSchema.safeParse(d)
+      );
+    },
+    onChanged(listener: (state: SchedulerState) => void): () => void {
+      const wrapped = (_event: Electron.IpcRendererEvent, payload: unknown): void => {
+        const parsed = stateChangedEventSchema.safeParse(payload);
+        if (parsed.success) listener(parsed.data);
+      };
+      ipcRenderer.on(ipcChannels.stateChanged, wrapped);
+      void ipcRenderer.invoke(ipcChannels.stateSubscribe);
+      return () => {
+        ipcRenderer.removeListener(ipcChannels.stateChanged, wrapped);
+      };
+    },
+    onEvent(listener: (event: SchedulerEvent) => void): () => void {
+      const wrapped = (_event: Electron.IpcRendererEvent, payload: unknown): void => {
+        const parsed = schedulerEventBroadcastSchema.safeParse(payload);
+        if (parsed.success) listener(parsed.data);
+      };
+      ipcRenderer.on(ipcChannels.schedulerEvent, wrapped);
+      void ipcRenderer.invoke(ipcChannels.stateSubscribe);
+      return () => {
+        ipcRenderer.removeListener(ipcChannels.schedulerEvent, wrapped);
+      };
+    }
+  },
+  tray: {
+    async dispatch(action: TrayAction): Promise<SchedulerState> {
+      return invokeAndParse(ipcChannels.trayAction, { action }, (d) =>
+        trayActionResponseSchema.safeParse(d)
+      );
+    }
+  },
+  popover: {
+    async hide(): Promise<void> {
+      await ipcRenderer.invoke(ipcChannels.popoverHide);
     }
   }
 } as const;

@@ -38,23 +38,23 @@ Sizing: **S** ≈ a few days, **M** ≈ ~1 week, **L** ≈ ~2 weeks (solo, focus
 
 **Tasks:**
 
-1. [ ] Sketch the scheduler state machine in a `SCHEDULER.md` (states: `running`, `paused`, `suppressed`, `idle-reset`; transitions; events).
-2. [ ] Implement a `Scheduler` class in main: holds `nextBreakAt`, `longBreakCounter`, current state. Emits typed events (`break-due`, `pre-warning-due`, `pause-expired`, `state-changed`).
-3. [ ] Persist scheduler state (`lastBreakAt`, `longBreakCounter`) to `electron-store` on every change.
-4. [ ] Restore scheduler state on app launch; if `lastBreakAt` is older than the configured break interval, schedule the next break for `now + interval` (don't fire instantly).
-5. [ ] Implement long-break detection: every Nth break (configurable, default 4) sets `isLongBreak: true` on the emitted event.
-6. [ ] Wire scheduler to settings via `settings:subscribe` — reconfiguring break interval recomputes `nextBreakAt`.
-7. [ ] Design + commission tray icon assets: Active and Paused variants, light + dark backgrounds (4 PNGs).
-8. [ ] Create `Tray` module in main: load icon, swap variant on state change.
-9. [ ] Build right-click `Menu` per spec (Pause 15m / 30m / 1h / Until tomorrow / sep / Take break now / Skip next / sep / Open Settings / Quit).
-10. [ ] Implement pause logic with auto-expiry — at expiry, reset scheduler so the user does not get an instant break.
-11. [ ] Implement "Take a break now" — fires `break-due` immediately, bypassing the schedule.
-12. [ ] Implement "Skip next break" — advances the schedule by one interval, increments long-break counter, no overlay.
-13. [ ] Build the left-click popover as a small frameless `BrowserWindow`, sized to content, positioned relative to `tray.getBounds()`.
-14. [ ] Implement `state:get` and a `state:subscribe` IPC channel; popover renderer subscribes for live countdown.
-15. [ ] Popover auto-closes on `blur` event and on an 8s timeout.
-16. [ ] Show three popover states: `Next break in mm:ss`, `Paused until h:mm a`, `Outside office hours` (the third is wired to the office-hours module from M8 — placeholder string for now).
-17. [ ] Add a dev-only panel inside the settings window that logs scheduler events live. This is the M2 acceptance check.
+1. [x] Sketch the scheduler state machine in a `SCHEDULER.md` (states: `running`, `paused`, `suppressed`, `idle-reset`; transitions; events).
+2. [x] Implement a `Scheduler` class in main: holds `nextBreakAt`, `longBreakCounter`, current state. Emits typed events (`break-due`, `pre-warning-due`, `pause-expired`, `state-changed`).
+3. [x] Persist scheduler state (`lastBreakAt`, `longBreakCounter`) to `electron-store` on every change.
+4. [x] Restore scheduler state on app launch; if `lastBreakAt` is older than the configured break interval, schedule the next break for `now + interval` (don't fire instantly).
+5. [x] Implement long-break detection: every Nth break (configurable, default 4) sets `isLongBreak: true` on the emitted event.
+6. [x] Wire scheduler to settings via `settings:subscribe` — reconfiguring break interval recomputes `nextBreakAt`.
+7. [x] Design + commission tray icon assets: Active and Paused variants, light + dark backgrounds (4 PNGs).
+8. [x] Create `Tray` module in main: load icon, swap variant on state change.
+9. [x] Build right-click `Menu` per spec (Pause 15m / 30m / 1h / Until tomorrow / sep / Take break now / Skip next / sep / Open Settings / Quit).
+10. [x] Implement pause logic with auto-expiry — at expiry, reset scheduler so the user does not get an instant break.
+11. [x] Implement "Take a break now" — fires `break-due` immediately, bypassing the schedule.
+12. [x] Implement "Skip next break" — advances the schedule by one interval, increments long-break counter, no overlay.
+13. [x] Build the left-click popover as a small frameless `BrowserWindow`, sized to content, positioned relative to `tray.getBounds()`.
+14. [x] Implement `state:get` and a `state:subscribe` IPC channel; popover renderer subscribes for live countdown.
+15. [x] Popover auto-closes on `blur` event and on an 8s timeout.
+16. [x] Show three popover states: `Next break in mm:ss`, `Paused until h:mm a`, `Outside office hours` (the third is wired to the office-hours module from M8 — placeholder string for now).
+17. [x] Add a dev-only panel inside the settings window that logs scheduler events live. This is the M2 acceptance check.
 
 ---
 

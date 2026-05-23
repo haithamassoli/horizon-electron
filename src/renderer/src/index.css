@@ -165,4 +165,57 @@
       radial-gradient(circle at 80% 75%, oklch(0.4 0.07 220 / 0.35), transparent 60%),
       linear-gradient(180deg, var(--color-background), var(--color-background));
   }
+
+  /* Popover (tray status) — frameless transparent window host. */
+  body.popover-host {
+    background: transparent;
+  }
+
+  .popover-shell {
+    padding: 8px;
+    height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+  }
+
+  .popover-card {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    border-radius: 14px;
+    background:
+      radial-gradient(120% 90% at 0% 0%, oklch(0.94 0.04 230 / 0.85), transparent 60%),
+      radial-gradient(120% 90% at 100% 100%, oklch(0.88 0.06 220 / 0.55), transparent 65%),
+      oklch(0.985 0.005 230 / 0.96);
+    border: 1px solid oklch(0.88 0.03 230 / 0.7);
+    box-shadow:
+      0 1px 0 oklch(1 0 0 / 0.6) inset,
+      0 20px 40px -22px oklch(0.4 0.08 240 / 0.4),
+      0 6px 14px -6px oklch(0.4 0.08 240 / 0.2);
+    overflow: hidden;
+  }
+
+  .popover-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at 80% 110%,
+      oklch(0.78 0.07 230 / 0.18),
+      transparent 60%
+    );
+    pointer-events: none;
+  }
+
+  .dark .popover-card {
+    background:
+      radial-gradient(120% 90% at 0% 0%, oklch(0.32 0.04 240 / 0.85), transparent 60%),
+      radial-gradient(120% 90% at 100% 100%, oklch(0.26 0.05 230 / 0.7), transparent 65%),
+      oklch(0.2 0.025 240 / 0.96);
+    border-color: oklch(0.32 0.03 240 / 0.7);
+    box-shadow:
+      0 1px 0 oklch(0.5 0.03 240 / 0.25) inset,
+      0 20px 40px -22px oklch(0 0 0 / 0.7),
+      0 6px 14px -6px oklch(0 0 0 / 0.4);
+  }
 }

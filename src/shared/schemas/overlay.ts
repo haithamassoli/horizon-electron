@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { enforcementModeSchema, visualAidSchema } from './settings';
+import { ambientAudioSchema, enforcementModeSchema, visualAidSchema } from './settings';
 
 export const overlayRoleSchema = z.enum(['primary', 'secondary']);
 export type OverlayRole = z.infer<typeof overlayRoleSchema>;
@@ -22,6 +22,7 @@ export const overlayInitPayloadSchema = z.object({
   durationMs: z.number().int().positive(),
   startedAt: z.number().int(),
   visualAid: visualAidSchema,
+  ambientAudio: ambientAudioSchema,
   snoozeCaps: snoozeCapsSchema,
   balancedLockoutMs: z.number().int().nonnegative()
 });

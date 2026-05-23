@@ -1,5 +1,6 @@
 import { registerHandler, broadcast } from './registry';
 import { getScheduler } from '../scheduler/scheduler';
+import { getTodayStore } from '../store/today-store';
 import {
   ipcChannels,
   stateGetRequestSchema,
@@ -53,9 +54,14 @@ export function registerStateChannels(): void {
         case 'break-now':
           scheduler.breakNow();
           break;
-        case 'skip-next':
+        case 'skip-next': {
+          const before = scheduler.getState().longBreakCounter;
           scheduler.skipNext();
+          if (scheduler.getState().longBreakCounter !== before) {
+            getTodayStore().increment('breaksSkipped');
+          }
           break;
+        }
         case 'open-settings':
         case 'quit':
           // handled at the tray layer; no scheduler effect.

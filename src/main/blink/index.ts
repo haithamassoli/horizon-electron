@@ -1,6 +1,7 @@
 import { getScheduler } from '../scheduler/scheduler';
 import { getSuppressionGate } from '../activity';
 import { isOverlayActive } from '../windows/overlay-manager';
+import { getTodayStore } from '../store/today-store';
 import { BlinkScheduler } from './blink-scheduler';
 import { destroyAllBlinkPulses, spawnBlinkPulse } from './blink-window';
 
@@ -28,7 +29,10 @@ export function startBlinkModule(): () => void {
     }
   });
 
-  const onBlinkDue = (): void => spawnBlinkPulse();
+  const onBlinkDue = (): void => {
+    spawnBlinkPulse();
+    getTodayStore().increment('blinksShown');
+  };
   blink.on('blink-due', onBlinkDue);
   blink.start();
 

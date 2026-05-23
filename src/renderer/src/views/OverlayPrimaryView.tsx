@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { BreathingHalo } from '@/components/BreathingHalo';
+import { BreathingCircle } from '@/components/BreathingCircle';
+import { TwentyTwentyTwenty } from '@/components/TwentyTwentyTwenty';
+import { AmbientAudio } from '@/components/AmbientAudio';
 import type {
   OverlayInitPayload,
   OverlaySnoozeResponse,
@@ -144,20 +146,25 @@ export function OverlayPrimaryView() {
               transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
               className="overlay-stage"
             >
-              <BreathingHalo size={320} />
+              {init.visualAid === 'breathing' && <BreathingCircle size={320} />}
+              {init.visualAid === 'twenty-twenty-twenty' && (
+                <TwentyTwentyTwenty size={320} />
+              )}
               <span className="overlay-countdown font-display tabular-nums">
                 {formatCountdown(remainingMs)}
               </span>
             </motion.div>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.45 }}
-              className="overlay-prompt"
-            >
-              Soften your gaze. Look beyond the screen.
-            </motion.p>
+            {init.visualAid !== 'twenty-twenty-twenty' && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.45 }}
+                className="overlay-prompt"
+              >
+                Soften your gaze. Look beyond the screen.
+              </motion.p>
+            )}
 
             <ProgressRail value={progress} />
           </div>
@@ -208,6 +215,13 @@ export function OverlayPrimaryView() {
           {init.mode === 'hardcore' && (
             <PanicHint progress={panicProgress} />
           )}
+
+          <AmbientAudio
+            track={init.ambientAudio}
+            durationMs={init.durationMs}
+            startedAt={init.startedAt}
+            closing={tick?.phase === 'closing'}
+          />
         </motion.div>
       )}
     </AnimatePresence>

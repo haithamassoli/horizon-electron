@@ -15,6 +15,12 @@ import {
   overlayPanicResponseIpcSchema,
   preWarningInitResponseSchema,
   preWarningTickEventSchema,
+  todayGetResponseSchema,
+  todayChangedEventSchema,
+  onboardingCompleteResponseSchema,
+  audioGetSrcResponseSchema,
+  appOpenExternalResponseSchema,
+  appGetVersionResponseSchema,
   type Settings,
   type SchedulerState,
   type SchedulerEvent,
@@ -25,7 +31,9 @@ import {
   type OverlaySnoozeResponse,
   type OverlayPanicResponse,
   type PreWarningInitPayload,
-  type PreWarningTickPayload
+  type PreWarningTickPayload,
+  type TodayCounters,
+  type AudioTrack
 } from '@shared/schemas';
 
 async function invokeAndParse<T>(
@@ -154,6 +162,53 @@ const horizon = {
       return () => {
         ipcRenderer.removeListener(ipcChannels.preWarningTick, wrapped);
       };
+    }
+  },
+  today: {
+    async get(): Promise<TodayCounters> {
+      return invokeAndParse(ipcChannels.todayGet, undefined, (d) =>
+        todayGetResponseSchema.safeParse(d)
+      );
+    },
+    onChanged(listener: (counters: TodayCounters) => void): () => void {
+      const wrapped = (_event: Electron.IpcRendererEvent, payload: unknown): void => {
+        const parsed = todayChangedEventSchema.safeParse(payload);
+        if (parsed.success) listener(parsed.data);
+      };
+      ipcRenderer.on(ipcChannels.todayChanged, wrapped);
+      void ipcRenderer.invoke(ipcChannels.todaySubscribe);
+      return () => {
+        ipcRenderer.removeListener(ipcChannels.todayChanged, wrapped);
+      };
+    }
+  },
+  onboarding: {
+    async complete(): Promise<Settings> {
+      return invokeAndParse(ipcChannels.onboardingComplete, undefined, (d) =>
+        onboardingCompleteResponseSchema.safeParse(d)
+      );
+    }
+  },
+  audio: {
+    async getSrc(track: AudioTrack): Promise<{ url: string | null }> {
+      return invokeAndParse(ipcChannels.audioGetSrc, { track }, (d) =>
+        audioGetSrcResponseSchema.safeParse(d)
+      );
+    }
+  },
+  app: {
+    async openExternal(url: string): Promise<void> {
+      const raw = await ipcRenderer.invoke(ipcChannels.appOpenExternal, { url });
+      const parsed = appOpenExternalResponseSchema.safeParse(raw);
+      if (!parsed.success) throw new Error('Invalid response on app:open-external');
+    },
+    async getVersion(): Promise<string> {
+      const { version } = await invokeAndParse(
+        ipcChannels.appGetVersion,
+        undefined,
+        (d) => appGetVersionResponseSchema.safeParse(d)
+      );
+      return version;
     }
   }
 } as const;

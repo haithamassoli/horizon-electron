@@ -171,27 +171,27 @@ Sizing: **S** ≈ a few days, **M** ≈ ~1 week, **L** ≈ ~2 weeks (solo, focus
 
 **Tasks:**
 
-1. [ ] Add `firstLaunchComplete: bool` to settings schema, default false.
-2. [ ] On app launch, if `firstLaunchComplete === false`, open the onboarding window instead of the main settings window.
-3. [ ] Build the onboarding view: welcome line ("Horizon. A quiet coach for your eyes."), three mode cards in a row, "Start" button.
-4. [ ] Onboarding default selection is Balanced.
-5. [ ] "Start" button writes the selected mode, sets `firstLaunchComplete: true`, closes onboarding, opens settings window, starts scheduler.
-6. [ ] Add `Today` counters to `electron-store`: `breaksTaken`, `breaksSkipped`, `snoozesUsed`, `blinksShown`. Each `{ date: 'YYYY-MM-DD', count: number }`.
-7. [ ] Increment counters from the scheduler / overlay / blink scheduler at the appropriate event boundaries.
-8. [ ] Build a midnight-reset job: on app open + every minute, check if local date has advanced; if so, zero the counters with the new date.
-9. [ ] Build the Today panel component at the top of settings: four-cell grid with plain typography, no progress bars.
-10. [ ] Hide the `Snoozes used today` cell when mode is Hardcore.
-11. [ ] Build the breathing circle visual: Framer Motion animation looping 4-7-8 (scale `1 → 1.4 → 1.4 → 1`, with `inhale 4s / hold 7s / exhale 8s`). Optional subtle text cue ("Inhale", "Hold", "Exhale") synced to phases.
-12. [ ] Build the 20-20-20 visual: centered "Look at something 20 feet away for 20 seconds." Calm typography. No animation.
-13. [ ] Build the `None` visual (just the gradient background, no center element).
-14. [ ] Add a visual-aid dropdown to settings (`Breathing` / `20-20-20` / `None`, default `Breathing`).
-15. [ ] Source three royalty-free, seamlessly looped, ≥3 min ambient tracks (Rain, Fire, Lightning). Master each to -18 LUFS.
-16. [ ] Bundle audio files via `electron-builder` `extraResources`; resolve paths via `app.getAppPath()` / `process.resourcesPath` at runtime.
-17. [ ] Implement audio playback in the primary overlay renderer using HTML `<audio>` with `loop` attribute.
-18. [ ] Implement 1s fade-in at break start and 1s fade-out at break end via Web Audio `GainNode` or programmatic volume ramping.
-19. [ ] Add the ambient audio dropdown to settings (`Off` / `Rain` / `Fire` / `Lightning`, default `Off`).
-20. [ ] Sweep the codebase to replace placeholder colors with the light-blue accent token; verify dark mode contrast.
-21. [ ] Polish all Framer Motion transitions: mode-card hover (scale 1 → 1.02 + soft glow), toast spring, overlay fades, popover fade-in.
+1. [x] Add `firstLaunchComplete: bool` to settings schema, default false.
+2. [x] On app launch, if `firstLaunchComplete === false`, open the onboarding window instead of the main settings window.
+3. [x] Build the onboarding view: welcome line ("Horizon. A quiet coach for your eyes."), three mode cards in a row, "Start" button.
+4. [x] Onboarding default selection is Balanced.
+5. [x] "Start" button writes the selected mode, sets `firstLaunchComplete: true`, closes onboarding, opens settings window, starts scheduler.
+6. [x] Add `Today` counters to `electron-store`: `breaksTaken`, `breaksSkipped`, `snoozesUsed`, `blinksShown`. Each `{ date: 'YYYY-MM-DD', count: number }`.
+7. [x] Increment counters from the scheduler / overlay / blink scheduler at the appropriate event boundaries.
+8. [x] Build a midnight-reset job: on app open + every minute, check if local date has advanced; if so, zero the counters with the new date.
+9. [x] Build the Today panel component at the top of settings: four-cell grid with plain typography, no progress bars.
+10. [x] Hide the `Snoozes used today` cell when mode is Hardcore.
+11. [x] Build the breathing circle visual: Framer Motion animation looping 4-7-8 (scale `1 → 1.4 → 1.4 → 1`, with `inhale 4s / hold 7s / exhale 8s`). Optional subtle text cue ("Inhale", "Hold", "Exhale") synced to phases.
+12. [x] Build the 20-20-20 visual: centered "Look at something 20 feet away for 20 seconds." Calm typography. No animation.
+13. [x] Build the `None` visual (just the gradient background, no center element).
+14. [x] Add a visual-aid dropdown to settings (`Breathing` / `20-20-20` / `None`, default `Breathing`).
+15. [ ] Source three royalty-free, seamlessly looped, ≥3 min ambient tracks (Rain, Fire, Lightning). Master each to -18 LUFS. _(Drop files at `resources/audio/{rain,fire,lightning}.mp3` — see README; playback + UI ship with graceful "missing file" handling.)_
+16. [ ] Bundle audio files via `electron-builder` `extraResources`; resolve paths via `app.getAppPath()` / `process.resourcesPath` at runtime. _(Runtime resolver done; `electron-builder.yml` lands in M10.)_
+17. [x] Implement audio playback in the primary overlay renderer using HTML `<audio>` with `loop` attribute.
+18. [x] Implement 1s fade-in at break start and 1s fade-out at break end via Web Audio `GainNode` or programmatic volume ramping.
+19. [x] Add the ambient audio dropdown to settings (`Off` / `Rain` / `Fire` / `Lightning`, default `Off`).
+20. [x] Sweep the codebase to replace placeholder colors with the light-blue accent token; verify dark mode contrast.
+21. [x] Polish all Framer Motion transitions: mode-card hover (scale 1 → 1.02 + soft glow), toast spring, overlay fades, popover fade-in.
 
 ---
 

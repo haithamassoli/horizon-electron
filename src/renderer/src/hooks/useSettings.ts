@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Settings, EnforcementMode, SnoozeCap } from '@shared/schemas';
+import type {
+  Settings,
+  EnforcementMode,
+  SnoozeCap,
+  Theme
+} from '@shared/schemas';
+
+type VisualAid = Settings['overlay']['visualAid'];
+type AmbientAudio = Settings['overlay']['ambientAudio'];
 
 interface SettingsState {
   settings: Settings | null;
@@ -20,6 +28,10 @@ interface UseSettingsResult extends SettingsState {
   setLongDurationMinutes: (minutes: number) => Promise<void>;
   setSnoozePerSessionCap: (cap: SnoozeCap) => Promise<void>;
   setSnoozePerDayCap: (cap: SnoozeCap) => Promise<void>;
+  setVisualAid: (aid: VisualAid) => Promise<void>;
+  setAmbientAudio: (audio: AmbientAudio) => Promise<void>;
+  setTheme: (theme: Theme) => Promise<void>;
+  setAutoLaunch: (enabled: boolean) => Promise<void>;
 }
 
 export function useSettings(): UseSettingsResult {
@@ -92,6 +104,13 @@ export function useSettings(): UseSettingsResult {
     setSnoozePerSessionCap: (cap) =>
       update((s) => ({ ...s, snooze: { ...s.snooze, perSessionCap: cap } })),
     setSnoozePerDayCap: (cap) =>
-      update((s) => ({ ...s, snooze: { ...s.snooze, perDayCap: cap } }))
+      update((s) => ({ ...s, snooze: { ...s.snooze, perDayCap: cap } })),
+    setVisualAid: (aid) =>
+      update((s) => ({ ...s, overlay: { ...s.overlay, visualAid: aid } })),
+    setAmbientAudio: (audio) =>
+      update((s) => ({ ...s, overlay: { ...s.overlay, ambientAudio: audio } })),
+    setTheme: (theme) => update((s) => ({ ...s, general: { ...s.general, theme } })),
+    setAutoLaunch: (enabled) =>
+      update((s) => ({ ...s, general: { ...s.general, autoLaunch: enabled } }))
   };
 }

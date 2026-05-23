@@ -7,6 +7,7 @@ import { OverlayPrimaryView } from './views/OverlayPrimaryView';
 import { OverlaySecondaryView } from './views/OverlaySecondaryView';
 import { PreWarningView } from './views/PreWarningView';
 import { BlinkPulseView } from './views/BlinkPulseView';
+import { OnboardingView } from './views/OnboardingView';
 import './index.css';
 
 const container = document.getElementById('root');
@@ -21,7 +22,8 @@ function pickRoute(): {
     | 'overlay-primary'
     | 'overlay-secondary'
     | 'pre-warning'
-    | 'blink';
+    | 'blink'
+    | 'onboarding';
   bodyClass: string | null;
 } {
   if (hash.startsWith('#/popover')) return { view: 'popover', bodyClass: 'popover-host' };
@@ -32,6 +34,8 @@ function pickRoute(): {
   if (hash.startsWith('#/pre-warning'))
     return { view: 'pre-warning', bodyClass: 'pre-warning-host-body' };
   if (hash.startsWith('#/blink')) return { view: 'blink', bodyClass: 'blink-host' };
+  if (hash.startsWith('#/onboarding'))
+    return { view: 'onboarding', bodyClass: 'onboarding-host' };
   return { view: 'settings', bodyClass: null };
 }
 
@@ -52,6 +56,8 @@ function renderRoute() {
       return <PreWarningView />;
     case 'blink':
       return <BlinkPulseView />;
+    case 'onboarding':
+      return <OnboardingView />;
     case 'settings':
     default:
       return (

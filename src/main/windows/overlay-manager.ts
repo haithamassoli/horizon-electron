@@ -14,6 +14,7 @@ import {
 } from '@shared/schemas';
 import { getScheduler } from '../scheduler/scheduler';
 import { getSettingsStore } from '../store/settings-store';
+import { getTodayStore } from '../store/today-store';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TICK_MS = 1_000;
@@ -26,12 +27,15 @@ interface OverlayWindowRecord {
   role: OverlayRole;
 }
 
+type CloseReason = 'natural' | 'skip' | 'snooze' | 'panic';
+
 interface ActiveSession {
   id: string;
   isLongBreak: boolean;
   durationMs: number;
   startedAt: number;
   visualAid: Settings['overlay']['visualAid'];
+  ambientAudio: Settings['overlay']['ambientAudio'];
   mode: Settings['enforcementMode'];
   primaryDisplayId: number;
   windows: OverlayWindowRecord[];
@@ -39,6 +43,7 @@ interface ActiveSession {
   durationHandle: ReturnType<typeof setTimeout> | null;
   closeHandle: ReturnType<typeof setTimeout> | null;
   closing: boolean;
+  closeReason: CloseReason;
 }
 
 let active: ActiveSession | null = null;
@@ -60,6 +65,7 @@ export function getOverlayInitPayload(webContentsId: number): OverlayInitPayload
     durationMs: active.durationMs,
     startedAt: active.startedAt,
     visualAid: active.visualAid,
+    ambientAudio: active.ambientAudio,
     snoozeCaps: computeSnoozeCaps(),
     balancedLockoutMs: active.mode === 'balanced' ? BALANCED_LOCKOUT_MS : 0
   };
@@ -70,6 +76,7 @@ export function requestOverlaySkip(sessionId: string): boolean {
   if (active.mode === 'hardcore') return false;
   // Balanced 7s lockout is enforced renderer-side (UX); main accepts skip whenever the renderer
   // sends it. The renderer never sends it during lockout.
+  active.closeReason = 'skip';
   beginClose();
   return true;
 }
@@ -83,6 +90,8 @@ export function requestOverlaySnooze(sessionId: string): OverlaySnoozeResponse {
   if (!result.accepted) {
     return { accepted: false, reason: result.reason };
   }
+  getTodayStore().increment('snoozesUsed');
+  active.closeReason = 'snooze';
   beginClose();
   return {
     accepted: true,
@@ -95,6 +104,7 @@ export function requestOverlaySnooze(sessionId: string): OverlaySnoozeResponse {
 export function requestOverlayPanic(sessionId: string): boolean {
   if (!active || active.id !== sessionId) return false;
   if (active.mode !== 'hardcore') return false;
+  active.closeReason = 'panic';
   beginClose();
   return true;
 }
@@ -129,13 +139,15 @@ export function spawnOverlaysForBreak(opts: {
     durationMs: opts.durationMs,
     startedAt,
     visualAid: settings.overlay.visualAid,
+    ambientAudio: settings.overlay.ambientAudio,
     mode: settings.enforcementMode,
     primaryDisplayId: primary.id,
     windows: [],
     tickHandle: null,
     durationHandle: null,
     closeHandle: null,
-    closing: false
+    closing: false,
+    closeReason: 'natural'
   };
   active = session;
 
@@ -192,6 +204,13 @@ function beginClose(): void {
 
 function destroyActive(): void {
   if (!active) return;
+  // Snooze increment happened at request time so the renderer's cap calculation reflects it.
+  // The break itself was neither "taken" nor "skipped" — it was deferred. So no counter bump here.
+  if (active.closeReason === 'natural') {
+    getTodayStore().increment('breaksTaken');
+  } else if (active.closeReason === 'skip' || active.closeReason === 'panic') {
+    getTodayStore().increment('breaksSkipped');
+  }
   for (const record of active.windows) {
     if (!record.win.isDestroyed()) record.win.destroy();
   }

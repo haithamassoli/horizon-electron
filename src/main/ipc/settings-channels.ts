@@ -1,5 +1,6 @@
 import { registerHandler, broadcast } from './registry';
 import { getSettingsStore } from '../store/settings-store';
+import { finishOnboardingAndOpenSettings } from '../windows/onboarding-window';
 import {
   ipcChannels,
   settingsGetRequestSchema,
@@ -8,7 +9,9 @@ import {
   settingsSetResponseSchema,
   settingsSubscribeRequestSchema,
   settingsSubscribeResponseSchema,
-  settingsChangedEventSchema
+  settingsChangedEventSchema,
+  onboardingCompleteRequestSchema,
+  onboardingCompleteResponseSchema
 } from '@shared/schemas';
 
 export function registerSettingsChannels(): void {
@@ -33,6 +36,20 @@ export function registerSettingsChannels(): void {
     request: settingsSubscribeRequestSchema,
     response: settingsSubscribeResponseSchema,
     handler: () => undefined
+  });
+
+  registerHandler({
+    channel: ipcChannels.onboardingComplete,
+    request: onboardingCompleteRequestSchema,
+    response: onboardingCompleteResponseSchema,
+    handler: () => {
+      const current = store.get();
+      const next = current.firstLaunchComplete
+        ? current
+        : store.set({ ...current, firstLaunchComplete: true });
+      finishOnboardingAndOpenSettings();
+      return next;
+    }
   });
 
   store.subscribe((settings) => {

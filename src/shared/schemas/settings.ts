@@ -65,6 +65,26 @@ export const settingsSchema = z.object({
   firstLaunchComplete: z.boolean()
 });
 
+const dateStringSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+export const todayCountersSchema = z.object({
+  date: dateStringSchema,
+  breaksTaken: z.number().int().min(0),
+  breaksSkipped: z.number().int().min(0),
+  snoozesUsed: z.number().int().min(0),
+  blinksShown: z.number().int().min(0)
+});
+
+export type TodayCounters = z.infer<typeof todayCountersSchema>;
+
+export const defaultTodayCounters: TodayCounters = {
+  date: '1970-01-01',
+  breaksTaken: 0,
+  breaksSkipped: 0,
+  snoozesUsed: 0,
+  blinksShown: 0
+};
+
 export type Settings = z.infer<typeof settingsSchema>;
 export type EnforcementMode = z.infer<typeof enforcementModeSchema>;
 export type Theme = z.infer<typeof themeSchema>;

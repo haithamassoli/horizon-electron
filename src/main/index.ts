@@ -15,6 +15,7 @@ import { wireOverlayManagerToScheduler } from './windows/overlay-manager';
 import { wirePreWarningToScheduler } from './windows/pre-warning-window';
 import { startActivityMonitors } from './activity';
 import { startBlinkModule } from './blink';
+import { startSystemIntegration } from './system-integration';
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -29,6 +30,7 @@ let unsubscribeOverlay: (() => void) | null = null;
 let unsubscribePreWarning: (() => void) | null = null;
 let stopActivityMonitors: (() => void) | null = null;
 let stopBlink: (() => void) | null = null;
+let stopSystemIntegration: (() => void) | null = null;
 
 app.whenReady().then(async () => {
   const settingsStore = getSettingsStore();
@@ -43,6 +45,7 @@ app.whenReady().then(async () => {
   registerAudioChannels();
 
   scheduler.start();
+  stopSystemIntegration = startSystemIntegration();
   unsubscribeOverlay = wireOverlayManagerToScheduler();
   unsubscribePreWarning = wirePreWarningToScheduler();
   stopActivityMonitors = await startActivityMonitors();
@@ -75,6 +78,8 @@ app.on('before-quit', () => {
   stopActivityMonitors = null;
   stopBlink?.();
   stopBlink = null;
+  stopSystemIntegration?.();
+  stopSystemIntegration = null;
   stopTodayMidnightTimer();
   destroyTray();
 });

@@ -203,18 +203,18 @@ Sizing: **S** ≈ a few days, **M** ≈ ~1 week, **L** ≈ ~2 weeks (solo, focus
 
 **Tasks:**
 
-1. [ ] Add office hours to settings schema: `enabled: bool`, `startTime: 'HH:mm'`, `endTime: 'HH:mm'`, `activeDays: number[]` (0–6, default `[1,2,3,4,5]`).
-2. [ ] Build the office hours UI section: a toggle, two time pickers, a row of weekday checkboxes.
-3. [ ] Implement `OfficeHoursGate` in main: every minute, compute whether the current time falls inside the active window.
-4. [ ] Wire the gate into both the break scheduler and the blink scheduler — when outside, timers do not advance and no events fire.
-5. [ ] Update the tray popover state to show `Outside office hours` when applicable.
-6. [ ] Wire auto-launch toggle to `app.setLoginItemSettings({ openAtLogin, openAsHidden: true })`. Apply live on change.
-7. [ ] Add the auto-launch toggle to settings General section (default on).
-8. [ ] Add Tailwind dark mode (`class` strategy). Implement a theme provider in the renderer.
-9. [ ] Read the OS theme on startup via `nativeTheme.shouldUseDarkColors`; subscribe to `nativeTheme.on('updated')`. When theme setting is `System`, follow it; when `Light` or `Dark`, override.
-10. [ ] Add theme dropdown to settings General (default `System`).
-11. [ ] Add version footer to settings — read `app.getVersion()` exposed via IPC. Render as a small clickable line.
-12. [ ] On version-footer click, `shell.openExternal()` opens the public downloads URL (define a constant; placeholder URL until M10 ships the page).
+1. [x] Add office hours to settings schema: `enabled: bool`, `startTime: 'HH:mm'`, `endTime: 'HH:mm'`, `activeDays: number[]` (0–6, default `[1,2,3,4,5]`).
+2. [x] Build the office hours UI section: a toggle, two time pickers, a row of weekday checkboxes.
+3. [x] Implement `OfficeHoursGate` in main: every minute, compute whether the current time falls inside the active window.
+4. [x] Wire the gate into both the break scheduler and the blink scheduler — when outside, timers do not advance and no events fire.
+5. [x] Update the tray popover state to show `Outside office hours` when applicable.
+6. [x] Wire auto-launch toggle to `app.setLoginItemSettings({ openAtLogin, openAsHidden: true })`. Apply live on change.
+7. [x] Add the auto-launch toggle to settings General section (default on).
+8. [x] Add Tailwind dark mode (`class` strategy). Implement a theme provider in the renderer.
+9. [x] Read the OS theme on startup via `nativeTheme.shouldUseDarkColors`; subscribe to `nativeTheme.on('updated')`. When theme setting is `System`, follow it; when `Light` or `Dark`, override.
+10. [x] Add theme dropdown to settings General (default `System`).
+11. [x] Add version footer to settings — read `app.getVersion()` exposed via IPC. Render as a small clickable line.
+12. [x] On version-footer click, `shell.openExternal()` opens the public downloads URL (define a constant; placeholder URL until M10 ships the page).
 
 ---
 

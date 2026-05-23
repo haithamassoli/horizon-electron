@@ -6,6 +6,8 @@ import { ModeSettings } from './views/ModeSettings';
 import { SnoozeSettings } from './views/SnoozeSettings';
 import { BlinkSettings } from './views/BlinkSettings';
 import { OverlaySettings } from './views/OverlaySettings';
+import { GeneralSettings } from './views/GeneralSettings';
+import { OfficeHoursSettings } from './views/OfficeHoursSettings';
 import { BreathingMark } from './components/BreathingMark';
 
 const DOWNLOADS_URL = 'https://horizon.bional.dev/downloads';
@@ -78,6 +80,9 @@ export function App() {
             <TodayPanel />
           </Section>
           <Section>
+            <GeneralSettings />
+          </Section>
+          <Section>
             <BreaksSettings />
           </Section>
           <Section>
@@ -88,6 +93,9 @@ export function App() {
           </Section>
           <Section>
             <BlinkSettings />
+          </Section>
+          <Section>
+            <OfficeHoursSettings />
           </Section>
           <Section>
             <OverlaySettings />

@@ -8,6 +8,7 @@ import { OverlaySecondaryView } from './views/OverlaySecondaryView';
 import { PreWarningView } from './views/PreWarningView';
 import { BlinkPulseView } from './views/BlinkPulseView';
 import { OnboardingView } from './views/OnboardingView';
+import { ThemeProvider } from './components/ThemeProvider';
 import './index.css';
 
 const container = document.getElementById('root');
@@ -74,4 +75,8 @@ function renderRoute() {
   }
 }
 
-createRoot(container).render(<StrictMode>{renderRoute()}</StrictMode>);
+createRoot(container).render(
+  <StrictMode>
+    <ThemeProvider>{renderRoute()}</ThemeProvider>
+  </StrictMode>
+);

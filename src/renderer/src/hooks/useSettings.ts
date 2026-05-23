@@ -32,6 +32,9 @@ interface UseSettingsResult extends SettingsState {
   setAmbientAudio: (audio: AmbientAudio) => Promise<void>;
   setTheme: (theme: Theme) => Promise<void>;
   setAutoLaunch: (enabled: boolean) => Promise<void>;
+  setOfficeHoursEnabled: (enabled: boolean) => Promise<void>;
+  setOfficeHoursTime: (key: 'startTime' | 'endTime', value: string) => Promise<void>;
+  toggleOfficeHoursDay: (day: number) => Promise<void>;
 }
 
 export function useSettings(): UseSettingsResult {
@@ -111,6 +114,17 @@ export function useSettings(): UseSettingsResult {
       update((s) => ({ ...s, overlay: { ...s.overlay, ambientAudio: audio } })),
     setTheme: (theme) => update((s) => ({ ...s, general: { ...s.general, theme } })),
     setAutoLaunch: (enabled) =>
-      update((s) => ({ ...s, general: { ...s.general, autoLaunch: enabled } }))
+      update((s) => ({ ...s, general: { ...s.general, autoLaunch: enabled } })),
+    setOfficeHoursEnabled: (enabled) =>
+      update((s) => ({ ...s, officeHours: { ...s.officeHours, enabled } })),
+    setOfficeHoursTime: (key, value) =>
+      update((s) => ({ ...s, officeHours: { ...s.officeHours, [key]: value } })),
+    toggleOfficeHoursDay: (day) =>
+      update((s) => {
+        const activeDays = s.officeHours.activeDays.includes(day)
+          ? s.officeHours.activeDays.filter((d) => d !== day)
+          : [...s.officeHours.activeDays, day].sort((a, b) => a - b);
+        return { ...s, officeHours: { ...s.officeHours, activeDays } };
+      })
   };
 }

@@ -343,6 +343,32 @@ export class Scheduler {
     });
   }
 
+  notifyOfficeHoursChanged(isInsideWindow: boolean): void {
+    const now = this.now();
+    if (!isInsideWindow) {
+      if (this.state.lifecycle === 'outside-office-hours') return;
+      if (this.state.lifecycle === 'paused' || this.state.lifecycle === 'idle') return;
+      this.clearSuppressionBuffer();
+      this.update({
+        lifecycle: 'outside-office-hours',
+        nextBreakAt: null,
+        suppressionReason: null,
+        deferredBreak: false
+      });
+      this.preWarningFired = false;
+      return;
+    }
+
+    if (this.state.lifecycle !== 'outside-office-hours') return;
+    this.update({
+      lifecycle: 'running',
+      nextBreakAt: now + this.intervalMs(),
+      suppressionReason: null,
+      deferredBreak: false
+    });
+    this.preWarningFired = false;
+  }
+
   isSuppressed(): boolean {
     return this.state.lifecycle === 'suppressed';
   }

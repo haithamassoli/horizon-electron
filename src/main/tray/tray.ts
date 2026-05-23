@@ -84,6 +84,8 @@ function loadIcon(paused: boolean): NativeImage {
 function applyMenu(state: SchedulerState): void {
   if (!tray) return;
   const isPaused = state.lifecycle === 'paused';
+  const isOutsideOfficeHours = state.lifecycle === 'outside-office-hours';
+  const canRunActions = !isPaused && !isOutsideOfficeHours;
   const menu = Menu.buildFromTemplate([
     isPaused
       ? {
@@ -102,12 +104,12 @@ function applyMenu(state: SchedulerState): void {
     { type: 'separator' },
     {
       label: 'Take a break now',
-      enabled: !isPaused,
+      enabled: canRunActions,
       click: () => fire('break-now')
     },
     {
       label: 'Skip next break',
-      enabled: !isPaused,
+      enabled: canRunActions,
       click: () => fire('skip-next')
     },
     { type: 'separator' },

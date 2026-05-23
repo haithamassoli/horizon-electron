@@ -236,7 +236,7 @@ function agoLabel(ms: number): string {
 function describe(e: SchedulerEvent): string {
   switch (e.type) {
     case 'state-changed':
-      return `${e.state.lifecycle} · counter=${e.state.longBreakCounter}${e.state.isNextLong ? ' · long-next' : ''}`;
+      return `${e.state.lifecycle}${e.state.suppressionReason ? `:${e.state.suppressionReason}` : ''} · counter=${e.state.longBreakCounter}${e.state.isNextLong ? ' · long-next' : ''}${e.state.deferredBreak ? ' · deferred' : ''}`;
     case 'pre-warning-due':
       return `${e.payload.isLongBreak ? 'long' : 'short'} · fires @${new Date(e.payload.fireAt).toLocaleTimeString()}`;
     case 'break-due':
@@ -247,5 +247,15 @@ function describe(e: SchedulerEvent): string {
       return `+${Math.round(e.payload.deferMs / 60_000)}m · session=${e.payload.snoozesUsedThisSession} · day=${e.payload.snoozesUsedToday}`;
     case 'snooze-rejected':
       return `rejected · ${e.payload.reason}`;
+    case 'idle-detected':
+      return `threshold=${e.payload.idleThresholdSeconds}s`;
+    case 'activity-resumed':
+      return `idle=${Math.round(e.payload.idleDurationMs / 1000)}s`;
+    case 'suppression-changed':
+      return e.payload.suppressed
+        ? `on · ${e.payload.reason ?? '?'}`
+        : 'off';
+    case 'break-deferred':
+      return `${e.payload.isLongBreak ? 'long' : 'short'} · ${e.payload.reason}`;
   }
 }

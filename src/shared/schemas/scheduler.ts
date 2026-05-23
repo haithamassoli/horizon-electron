@@ -3,11 +3,15 @@ import { z } from 'zod';
 export const schedulerLifecycleSchema = z.enum([
   'running',
   'paused',
+  'idle',
   'suppressed',
   'outside-office-hours'
 ]);
 
 export type SchedulerLifecycle = z.infer<typeof schedulerLifecycleSchema>;
+
+export const suppressionReasonSchema = z.enum(['fullscreen', 'meeting']);
+export type SuppressionReason = z.infer<typeof suppressionReasonSchema>;
 
 export const schedulerStateSchema = z.object({
   lifecycle: schedulerLifecycleSchema,
@@ -17,6 +21,7 @@ export const schedulerStateSchema = z.object({
   longBreakCounter: z.number().int().min(0),
   isNextLong: z.boolean(),
   deferredBreak: z.boolean(),
+  suppressionReason: suppressionReasonSchema.nullable(),
   snoozesUsedThisSession: z.number().int().min(0),
   snoozesUsedToday: z.number().int().min(0),
   updatedAt: z.number()
@@ -53,7 +58,11 @@ export const schedulerEventTypeSchema = z.enum([
   'break-due',
   'pause-expired',
   'snooze-used',
-  'snooze-rejected'
+  'snooze-rejected',
+  'idle-detected',
+  'activity-resumed',
+  'suppression-changed',
+  'break-deferred'
 ]);
 
 export const snoozeRejectReasonSchema = z.enum([
@@ -94,6 +103,24 @@ export const pauseExpiredPayloadSchema = z.object({
   pausedUntil: z.number()
 });
 
+export const idleDetectedPayloadSchema = z.object({
+  idleThresholdSeconds: z.number().int().positive()
+});
+
+export const activityResumedPayloadSchema = z.object({
+  idleDurationMs: z.number().int().nonnegative()
+});
+
+export const suppressionChangedPayloadSchema = z.object({
+  suppressed: z.boolean(),
+  reason: suppressionReasonSchema.nullable()
+});
+
+export const breakDeferredPayloadSchema = z.object({
+  reason: suppressionReasonSchema,
+  isLongBreak: z.boolean()
+});
+
 export const schedulerEventSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('state-changed'),
@@ -124,6 +151,26 @@ export const schedulerEventSchema = z.discriminatedUnion('type', [
     type: z.literal('snooze-rejected'),
     at: z.number(),
     payload: snoozeRejectedPayloadSchema
+  }),
+  z.object({
+    type: z.literal('idle-detected'),
+    at: z.number(),
+    payload: idleDetectedPayloadSchema
+  }),
+  z.object({
+    type: z.literal('activity-resumed'),
+    at: z.number(),
+    payload: activityResumedPayloadSchema
+  }),
+  z.object({
+    type: z.literal('suppression-changed'),
+    at: z.number(),
+    payload: suppressionChangedPayloadSchema
+  }),
+  z.object({
+    type: z.literal('break-deferred'),
+    at: z.number(),
+    payload: breakDeferredPayloadSchema
   })
 ]);
 

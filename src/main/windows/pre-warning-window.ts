@@ -153,6 +153,11 @@ export function wirePreWarningToScheduler(): () => void {
       // Belt-and-suspenders: ensure the toast dies as the overlay opens.
       closeWarning();
     }
+    if (event.type === 'state-changed' && warning && event.state.lifecycle !== 'running') {
+      // Lifecycle left `running` mid-warning (idle / suppressed / paused / outside-hours) —
+      // the break that this toast was warning about no longer applies. Drop the toast.
+      closeWarning();
+    }
   });
 }
 

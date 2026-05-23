@@ -9,6 +9,7 @@ import { getScheduler } from './scheduler/scheduler';
 import { createTray, destroyTray } from './tray/tray';
 import { wireOverlayManagerToScheduler } from './windows/overlay-manager';
 import { wirePreWarningToScheduler } from './windows/pre-warning-window';
+import { startActivityMonitors } from './activity';
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -21,8 +22,9 @@ app.on('second-instance', () => {
 
 let unsubscribeOverlay: (() => void) | null = null;
 let unsubscribePreWarning: (() => void) | null = null;
+let stopActivityMonitors: (() => void) | null = null;
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   getSettingsStore();
   const scheduler = getScheduler();
 
@@ -34,6 +36,7 @@ app.whenReady().then(() => {
   scheduler.start();
   unsubscribeOverlay = wireOverlayManagerToScheduler();
   unsubscribePreWarning = wirePreWarningToScheduler();
+  stopActivityMonitors = await startActivityMonitors();
   createTray();
   showSettingsWindow();
 
@@ -47,6 +50,8 @@ app.on('before-quit', () => {
   unsubscribeOverlay = null;
   unsubscribePreWarning?.();
   unsubscribePreWarning = null;
+  stopActivityMonitors?.();
+  stopActivityMonitors = null;
   destroyTray();
 });
 

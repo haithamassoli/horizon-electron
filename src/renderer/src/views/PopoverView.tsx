@@ -91,9 +91,13 @@ function StatusDot({ lifecycle }: { lifecycle: SchedulerState['lifecycle'] }) {
           'relative inline-block h-2 w-2 rounded-full ' +
           (lifecycle === 'paused'
             ? 'bg-muted-foreground/50'
-            : lifecycle === 'outside-office-hours'
-              ? 'bg-muted-foreground/30'
-              : 'bg-primary')
+            : lifecycle === 'idle'
+              ? 'bg-muted-foreground/40'
+              : lifecycle === 'suppressed'
+                ? 'bg-amber-400/70'
+                : lifecycle === 'outside-office-hours'
+                  ? 'bg-muted-foreground/30'
+                  : 'bg-primary')
         }
       />
     </span>
@@ -124,12 +128,30 @@ function derive(state: SchedulerState, now: number): DerivedView {
       hint: 'Resumes at start of next window'
     };
   }
-  if (state.lifecycle === 'suppressed') {
+  if (state.lifecycle === 'idle') {
     return {
-      key: 'suppressed',
+      key: 'idle',
+      label: 'Paused',
+      value: 'idle',
+      hint: 'Resumes on activity'
+    };
+  }
+  if (state.lifecycle === 'suppressed') {
+    const value =
+      state.suppressionReason === 'fullscreen' ? 'fullscreen app' : 'meeting active';
+    return {
+      key: `suppressed-${state.suppressionReason ?? 'unknown'}`,
       label: 'Deferred',
-      value: 'meeting active',
-      hint: 'Resumes when activity ends'
+      value,
+      hint: state.deferredBreak ? 'Break queued after activity' : 'Resumes when activity ends'
+    };
+  }
+  if (state.lifecycle === 'running' && state.deferredBreak && state.nextBreakAt === null) {
+    return {
+      key: 'recovering',
+      label: 'Resuming',
+      value: 'starting break shortly',
+      hint: '30s buffer after activity'
     };
   }
   if (state.lifecycle === 'running' && state.nextBreakAt !== null) {

@@ -7,7 +7,8 @@ import type {
   SchedulerState,
   Settings,
   SnoozeCap,
-  SnoozeRejectReason
+  SnoozeRejectReason,
+  SuppressionReason
 } from '@shared/schemas';
 import { getSettingsStore } from '../store/settings-store';
 import { getSchedulerStore } from '../store/scheduler-store';
@@ -16,6 +17,7 @@ const MIN_MS = 60_000;
 const PRE_WARNING_MS = 60_000;
 const TICK_MS = 1_000;
 const SNOOZE_DEFER_MS = 5 * MIN_MS;
+const POST_SUPPRESSION_BUFFER_MS = 30_000;
 
 interface SchedulerOptions {
   now?: () => number;
@@ -43,6 +45,8 @@ export class Scheduler {
   private currentSettings: Settings;
   private snoozesUsedThisSession = 0;
   private dailySnooze: DailySnoozeCounter;
+  private suppressionBufferHandle: ReturnType<typeof setTimeout> | null = null;
+  private idleEnteredAt: number | null = null;
 
   constructor(opts: SchedulerOptions = {}) {
     this.now = opts.now ?? Date.now;
@@ -66,6 +70,7 @@ export class Scheduler {
       clearInterval(this.tickHandle);
       this.tickHandle = null;
     }
+    this.clearSuppressionBuffer();
     this.settingsUnsubscribe?.();
     this.settingsUnsubscribe = null;
     this.emitter.removeAllListeners();
@@ -83,11 +88,16 @@ export class Scheduler {
   pause(duration: PauseDuration): void {
     const now = this.now();
     const until = computePauseUntil(now, duration);
+    this.clearSuppressionBuffer();
+    this.idleEnteredAt = null;
     this.update({
       lifecycle: 'paused',
       pausedUntil: until,
-      nextBreakAt: null
+      nextBreakAt: null,
+      suppressionReason: null,
+      deferredBreak: false
     });
+    this.preWarningFired = false;
   }
 
   resume(): void {
@@ -195,6 +205,168 @@ export class Scheduler {
     this.update({ snoozesUsedThisSession: 0 });
   }
 
+  /**
+   * Idle takes priority over user pause / suppression. Halts the timer, drops any deferred slot,
+   * and emits `idle-detected`. The in-flight pre-warning closes via the lifecycle transition.
+   */
+  notifyIdleDetected(thresholdSeconds: number): void {
+    if (this.state.lifecycle === 'idle') return;
+    // Paused / outside-office-hours own their own exit conditions — don't clobber them.
+    if (this.state.lifecycle === 'paused' || this.state.lifecycle === 'outside-office-hours') return;
+    const now = this.now();
+    this.idleEnteredAt = now;
+    this.clearSuppressionBuffer();
+    this.update({
+      lifecycle: 'idle',
+      nextBreakAt: null,
+      suppressionReason: null,
+      deferredBreak: false
+    });
+    this.preWarningFired = false;
+    this.emit({
+      type: 'idle-detected',
+      at: now,
+      payload: { idleThresholdSeconds: thresholdSeconds }
+    });
+  }
+
+  /**
+   * Activity resumed from idle. Resets the schedule from now and clears the session snooze count.
+   * Does nothing if not currently idle (active-window noise should not nuke a paused / suppressed state).
+   */
+  notifyActivityResumed(): void {
+    if (this.state.lifecycle !== 'idle') return;
+    const now = this.now();
+    const idleDurationMs = this.idleEnteredAt !== null ? Math.max(0, now - this.idleEnteredAt) : 0;
+    this.idleEnteredAt = null;
+    this.snoozesUsedThisSession = 0;
+    this.update({
+      lifecycle: 'running',
+      nextBreakAt: now + this.intervalMs(),
+      suppressionReason: null,
+      deferredBreak: false,
+      snoozesUsedThisSession: 0
+    });
+    this.preWarningFired = false;
+    this.emit({
+      type: 'activity-resumed',
+      at: now,
+      payload: { idleDurationMs }
+    });
+  }
+
+  /**
+   * Suppression OR'd from FullscreenMonitor + MeetingMonitor. Idle / paused take priority and ignore.
+   * Single deferred-break slot — collapses repeated triggers.
+   */
+  notifySuppressionChanged(suppressed: boolean, reason: SuppressionReason | null): void {
+    const now = this.now();
+
+    if (suppressed) {
+      if (!reason) return;
+      if (this.state.lifecycle === 'idle' || this.state.lifecycle === 'paused') return;
+
+      // Already suppressed — only update reason if changed (e.g., fullscreen → meeting overlap).
+      if (this.state.lifecycle === 'suppressed') {
+        if (this.state.suppressionReason !== reason) {
+          this.update({ suppressionReason: reason });
+          this.emit({
+            type: 'suppression-changed',
+            at: now,
+            payload: { suppressed: true, reason }
+          });
+        }
+        return;
+      }
+
+      // Capture whether a break was about to (or did) fire — collapse into deferredBreak slot.
+      const wasNearBreak =
+        this.preWarningFired ||
+        (this.state.nextBreakAt !== null && this.state.nextBreakAt - now <= PRE_WARNING_MS);
+      const deferredBreak = this.state.deferredBreak || wasNearBreak;
+      const newlyDeferred = deferredBreak && !this.state.deferredBreak;
+      const isLongBreak = this.state.isNextLong;
+
+      this.clearSuppressionBuffer();
+      this.update({
+        lifecycle: 'suppressed',
+        suppressionReason: reason,
+        nextBreakAt: null,
+        deferredBreak
+      });
+      this.preWarningFired = false;
+      this.emit({
+        type: 'suppression-changed',
+        at: now,
+        payload: { suppressed: true, reason }
+      });
+      if (newlyDeferred) {
+        this.emit({
+          type: 'break-deferred',
+          at: now,
+          payload: { reason, isLongBreak }
+        });
+      }
+      return;
+    }
+
+    // Unsuppress — only acts if currently suppressed (idle / paused / outside-hours own their exits).
+    if (this.state.lifecycle !== 'suppressed') return;
+
+    this.clearSuppressionBuffer();
+    const deferred = this.state.deferredBreak;
+
+    if (deferred) {
+      // Stay in suppressed UI label until the buffer expires? Spec is silent — promote to running
+      // immediately so the popover stops saying "deferred". The pre-warning will appear after 30s.
+      this.update({
+        lifecycle: 'running',
+        suppressionReason: null,
+        nextBreakAt: null,
+        deferredBreak: true
+      });
+      this.suppressionBufferHandle = setTimeout(() => this.fireDeferredBreak(), POST_SUPPRESSION_BUFFER_MS);
+    } else {
+      this.update({
+        lifecycle: 'running',
+        suppressionReason: null,
+        nextBreakAt: this.now() + this.intervalMs(),
+        deferredBreak: false
+      });
+      this.preWarningFired = false;
+    }
+
+    this.emit({
+      type: 'suppression-changed',
+      at: now,
+      payload: { suppressed: false, reason: null }
+    });
+  }
+
+  isSuppressed(): boolean {
+    return this.state.lifecycle === 'suppressed';
+  }
+
+  // --- deferred break helpers ---
+
+  private fireDeferredBreak(): void {
+    this.suppressionBufferHandle = null;
+    // Suppression / idle / pause may have flipped during the buffer — if so, drop the trigger;
+    // the next state change will re-evaluate.
+    if (this.state.lifecycle !== 'running' || !this.state.deferredBreak) return;
+    const fireAt = this.now() + PRE_WARNING_MS;
+    this.update({ nextBreakAt: fireAt, deferredBreak: false });
+    this.preWarningFired = false;
+    // tick() will emit `pre-warning-due` on the next interval and `break-due` at fireAt.
+  }
+
+  private clearSuppressionBuffer(): void {
+    if (this.suppressionBufferHandle) {
+      clearTimeout(this.suppressionBufferHandle);
+      this.suppressionBufferHandle = null;
+    }
+  }
+
   // --- internals ---
 
   private computeInitialState(persisted: PersistedScheduler): SchedulerState {
@@ -211,6 +383,7 @@ export class Scheduler {
         longBreakCounter: persisted.longBreakCounter,
         isNextLong,
         deferredBreak: false,
+        suppressionReason: null,
         snoozesUsedThisSession: 0,
         snoozesUsedToday: this.dailySnooze.count,
         updatedAt: now
@@ -228,6 +401,7 @@ export class Scheduler {
       longBreakCounter: persisted.longBreakCounter,
       isNextLong,
       deferredBreak: false,
+      suppressionReason: null,
       snoozesUsedThisSession: 0,
       snoozesUsedToday: this.dailySnooze.count,
       updatedAt: now

@@ -123,21 +123,21 @@ Sizing: **S** ≈ a few days, **M** ≈ ~1 week, **L** ≈ ~2 weeks (solo, focus
 
 **Tasks:**
 
-1. [ ] Implement `IdleMonitor` in main using `powerMonitor.getSystemIdleState(threshold)` polled every 30s.
-2. [ ] On crossing the 5-min idle threshold, emit `idle-detected`; scheduler pauses + clears `nextBreakAt`.
-3. [ ] On next activity (idle state returns to `active`), emit `activity-resumed`; scheduler resets `nextBreakAt` to `now + interval`.
-4. [ ] Cancel an in-flight pre-break warning if idle is detected mid-countdown.
-5. [ ] Reset `snoozesUsedThisSession` on every `activity-resumed`.
-6. [ ] Install `active-win` package. Build `FullscreenMonitor` in main, polled at 5s normally and 1s during the 60s pre-break warning window.
-7. [ ] Detect OS-level fullscreen state on any display. Emit `fullscreen-active` / `fullscreen-ended`.
-8. [ ] Implement `MeetingMonitor` for Windows: detect active microphone session via MMDevice / WASAPI session enumeration; detect active camera via MediaCapture or equivalent.
-9. [ ] Fail-open: if a monitor cannot initialize on the current platform, log a warning, continue without that layer.
-10. [ ] Build a `SuppressionGate` module that ORs `fullscreen-active` and `meeting-active` into a single `suppressed` state for the scheduler to consume.
-11. [ ] When `suppressed` becomes true and a break is due, set `deferredBreak: true` (single slot). Additional triggers while suppressed collapse — only one deferred break ever queued.
-12. [ ] On `suppressed` becoming false, start a 30s buffer timer. After the buffer, if `deferredBreak`, fire the standard 60s pre-break warning then the overlay.
-13. [ ] If `suppressed` becomes true again during the 60s warning or the 30s buffer, cancel and re-queue.
-14. [ ] Wire blink reminder to the same `suppressed` state — if suppressed, blink fires are silent skips (no queue, no defer).
-15. [ ] Add a "Deferred — meeting active" string to the tray popover state when applicable.
+1. [x] Implement `IdleMonitor` in main using `powerMonitor.getSystemIdleState(threshold)` polled every 30s.
+2. [x] On crossing the 5-min idle threshold, emit `idle-detected`; scheduler pauses + clears `nextBreakAt`.
+3. [x] On next activity (idle state returns to `active`), emit `activity-resumed`; scheduler resets `nextBreakAt` to `now + interval`.
+4. [x] Cancel an in-flight pre-break warning if idle is detected mid-countdown.
+5. [x] Reset `snoozesUsedThisSession` on every `activity-resumed`.
+6. [x] Install `active-win` package. Build `FullscreenMonitor` in main, polled at 5s normally and 1s during the 60s pre-break warning window.
+7. [x] Detect OS-level fullscreen state on any display. Emit `fullscreen-active` / `fullscreen-ended`.
+8. [x] Implement `MeetingMonitor` for Windows: detect active microphone session via MMDevice / WASAPI session enumeration; detect active camera via MediaCapture or equivalent.
+9. [x] Fail-open: if a monitor cannot initialize on the current platform, log a warning, continue without that layer.
+10. [x] Build a `SuppressionGate` module that ORs `fullscreen-active` and `meeting-active` into a single `suppressed` state for the scheduler to consume.
+11. [x] When `suppressed` becomes true and a break is due, set `deferredBreak: true` (single slot). Additional triggers while suppressed collapse — only one deferred break ever queued.
+12. [x] On `suppressed` becoming false, start a 30s buffer timer. After the buffer, if `deferredBreak`, fire the standard 60s pre-break warning then the overlay.
+13. [x] If `suppressed` becomes true again during the 60s warning or the 30s buffer, cancel and re-queue.
+14. [ ] Wire blink reminder to the same `suppressed` state — if suppressed, blink fires are silent skips (no queue, no defer). _(SuppressionGate exposed via `getSuppressionGate()` — M6 will subscribe.)_
+15. [x] Add a "Deferred — meeting active" string to the tray popover state when applicable.
 16. [ ] Acceptance check: with a 2-min interval, start a Zoom call, verify no overlay fires; end the call, verify the deferred break fires 30s + 60s later.
 
 ---

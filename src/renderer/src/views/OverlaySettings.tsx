@@ -76,7 +76,7 @@ export function OverlaySettings() {
           What you see and hear during a break. Both apply on the next overlay.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-7">
+      <CardContent className="flex flex-col gap-4">
         <Slot
           label="Visual aid"
           hint={VISUAL_DESCRIPTION[visualAid]}
@@ -146,19 +146,19 @@ interface SlotProps {
 
 function Slot({ label, hint, control, preview }: SlotProps) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="settings-row flex flex-col gap-4 px-4 py-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="flex flex-1 flex-col gap-1.5">
-        <span className="text-sm font-light">{label}</span>
+        <span className="text-sm font-bold tracking-[-0.01em]">{label}</span>
         <motion.span
           key={hint}
           initial={{ opacity: 0.65 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.22 }}
-          className="text-xs text-muted-foreground"
+          className="text-xs font-medium leading-relaxed text-muted-foreground"
         >
           {hint}
         </motion.span>
-        <div className="mt-3 flex h-16 w-full items-center justify-center overflow-hidden rounded-md border border-border/70 bg-card/60">
+        <div className="mt-3 flex h-16 w-full items-center justify-center overflow-hidden rounded-2xl border border-border/60 bg-background/45 shadow-[0_1px_0_oklch(1_0_0_/_0.6)_inset]">
           {preview}
         </div>
       </div>
@@ -174,8 +174,8 @@ function VisualPreview({ kind }: { kind: VisualAid }) {
         className="h-10 w-10 rounded-full"
         style={{
           background:
-            'radial-gradient(circle at 50% 50%, oklch(0.92 0.08 230 / 0.85), oklch(0.78 0.07 230 / 0.25) 60%, transparent 80%)',
-          border: '1px solid oklch(0.78 0.07 230 / 0.4)'
+            'radial-gradient(circle at 50% 50%, oklch(0.96 0.08 72 / 0.88), oklch(0.78 0.08 145 / 0.26) 60%, transparent 80%)',
+          border: '1px solid oklch(0.78 0.11 48 / 0.32)'
         }}
         animate={{ scale: [1, 1.18, 1.18, 1], opacity: [0.7, 1, 1, 0.7] }}
         transition={{
@@ -214,7 +214,7 @@ function AudioPreview({ kind, muted }: { kind: AmbientAudio; muted: boolean }) {
       {[0, 1, 2, 3, 4].map((i) => (
         <motion.span
           key={i}
-          className="block w-[3px] rounded-full bg-primary/60"
+          className="block w-[3px] rounded-full bg-primary/70"
           animate={muted ? { height: 6 } : { height: [6, 18, 8, 22, 10, 6] }}
           transition={{
             duration: 1.6,

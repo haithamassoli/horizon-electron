@@ -1,5 +1,41 @@
+appId: com.bional.horizon
+productName: Horizon
+
+directories:
+  output: dist
+  buildResources: resources
+
+files:
+  - out/**
+  - package.json
+
+asar: true
+
+win:
+  icon: resources/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+  artifactName: ${productName}-Setup-${version}-${arch}.${ext}
+
+nsis:
+  guid: 4d7bbfe1-7f64-438d-8994-84fe1e1a0e2f
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  installerHeaderIcon: resources/icon.ico
+  uninstallerIcon: resources/icon.ico
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Horizon
+
 extraResources:
   - from: resources/audio
     to: audio
     filter:
       - "*.mp3"
+  - from: resources/tray
+    to: tray
+    filter:
+      - "*.png"

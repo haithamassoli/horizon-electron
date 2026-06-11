@@ -19,8 +19,8 @@ const MODES: ModeDescriptor[] = [
     blurb: 'Skip anytime. Trust yourself to take the breaks that matter.',
     vibe: 'Permissive',
     gradient:
-      'linear-gradient(135deg, oklch(0.92 0.05 200 / 0.9), oklch(0.86 0.07 230 / 0.7))',
-    glow: 'oklch(0.78 0.07 220 / 0.32)'
+      'linear-gradient(135deg, oklch(0.96 0.08 78 / 0.95), oklch(0.86 0.08 145 / 0.72))',
+    glow: 'oklch(0.78 0.08 145 / 0.32)'
   },
   {
     value: 'balanced',
@@ -28,8 +28,8 @@ const MODES: ModeDescriptor[] = [
     blurb: 'A seven-second pause. Enough to breathe before you decide.',
     vibe: 'Suggested',
     gradient:
-      'linear-gradient(135deg, oklch(0.85 0.08 220 / 0.95), oklch(0.74 0.09 250 / 0.8))',
-    glow: 'oklch(0.78 0.08 235 / 0.42)'
+      'linear-gradient(135deg, oklch(0.9 0.12 50 / 0.96), oklch(0.84 0.08 28 / 0.82))',
+    glow: 'oklch(0.76 0.12 48 / 0.42)'
   },
   {
     value: 'hardcore',
@@ -37,8 +37,8 @@ const MODES: ModeDescriptor[] = [
     blurb: 'No skip. No snooze. The break is the work.',
     vibe: 'Firm',
     gradient:
-      'linear-gradient(135deg, oklch(0.62 0.12 260 / 0.95), oklch(0.42 0.1 280 / 0.85))',
-    glow: 'oklch(0.6 0.13 270 / 0.45)'
+      'linear-gradient(135deg, oklch(0.72 0.11 22 / 0.95), oklch(0.48 0.08 28 / 0.85))',
+    glow: 'oklch(0.62 0.12 28 / 0.45)'
   }
 ];
 
@@ -51,7 +51,7 @@ export function ModeSettings() {
       <CardHeader>
         <CardTitle>Enforcement</CardTitle>
         <CardDescription>
-          How firmly Horizon insists. Switch any time — applies on the next break.
+          How firmly Horizon protects the pause. Switch any time; applies on the next break.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -110,16 +110,16 @@ function ModeCard({ descriptor, selected, onSelect }: ModeCardProps) {
       whileTap={{ scale: 0.985 }}
       transition={{ type: 'spring', stiffness: 320, damping: 24 }}
       className={
-        'group relative flex flex-col gap-0 overflow-hidden rounded-xl border text-left transition-colors duration-200 ' +
+        'group relative flex flex-col gap-0 overflow-hidden rounded-[1.35rem] border text-left transition-colors duration-200 ' +
         (selected
-          ? 'border-primary/70 bg-card shadow-[0_0_0_1px_oklch(0.78_0.07_230_/_0.25),0_18px_38px_-22px_oklch(0.45_0.08_240_/_0.45)]'
-          : 'border-border/70 bg-card hover:border-border')
+          ? 'border-primary/70 bg-background/70 shadow-[0_0_0_1px_oklch(0.78_0.11_48_/_0.25),0_18px_38px_-22px_oklch(0.45_0.08_48_/_0.45)]'
+          : 'border-border/70 bg-background/45 hover:border-border')
       }
       style={selected ? { ['--mode-glow' as never]: glow } : {}}
     >
       <div
         aria-hidden
-        className="relative h-20 w-full"
+        className="relative h-16 w-full"
         style={{ background: gradient }}
       >
         <div
@@ -148,7 +148,7 @@ function ModeCard({ descriptor, selected, onSelect }: ModeCardProps) {
 
       <div className="flex flex-col gap-1.5 px-4 py-4">
         <div className="flex items-baseline justify-between gap-2">
-          <span className="font-display text-lg leading-none tracking-tight">{name}</span>
+          <span className="text-lg font-extrabold leading-none tracking-[-0.03em]">{name}</span>
           <span
             className={
               'rounded-full px-2 py-0.5 text-[9px] uppercase tracking-[0.18em] transition-colors ' +
@@ -160,7 +160,7 @@ function ModeCard({ descriptor, selected, onSelect }: ModeCardProps) {
             {vibe}
           </span>
         </div>
-        <p className="text-xs font-light leading-relaxed text-muted-foreground">{blurb}</p>
+        <p className="text-xs font-medium leading-relaxed text-muted-foreground">{blurb}</p>
       </div>
 
       {selected && (
@@ -169,7 +169,7 @@ function ModeCard({ descriptor, selected, onSelect }: ModeCardProps) {
           layoutId="mode-glow"
           className="pointer-events-none absolute -inset-px rounded-xl"
           style={{
-            boxShadow: `0 0 0 1px oklch(0.78 0.07 230 / 0.55), 0 0 32px var(--mode-glow)`
+            boxShadow: `0 0 0 1px oklch(0.78 0.11 48 / 0.5), 0 0 32px var(--mode-glow)`
           }}
           transition={{ type: 'spring', stiffness: 240, damping: 26 }}
         />

@@ -75,14 +75,14 @@ export function BlinkSettings() {
                 </motion.span>
               </div>
               <Slider
-                min={5}
+                min={1}
                 max={30}
                 step={1}
                 value={[intervalMinutes]}
                 onValueChange={([v]) => v !== undefined && void setBlinkIntervalMinutes(v)}
               />
               <div className="flex justify-between px-0.5 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/70">
-                <span>5 min</span>
+                <span>1 min</span>
                 <span>15</span>
                 <span>30 min</span>
               </div>

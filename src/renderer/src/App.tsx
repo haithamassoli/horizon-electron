@@ -10,12 +10,12 @@ import { GeneralSettings } from './views/GeneralSettings';
 import { OfficeHoursSettings } from './views/OfficeHoursSettings';
 import { BreathingMark } from './components/BreathingMark';
 
-const DOWNLOADS_URL = 'https://horizon.bional.dev/downloads';
+const DOWNLOADS_URL = 'https://bional.github.io/horizon/downloads.html';
 
 export function App() {
   return (
     <main className="breathing-surface min-h-full">
-      <div className="mx-auto flex max-w-2xl flex-col gap-10 px-8 pb-16 pt-14">
+      <div className="mx-auto flex max-w-3xl flex-col gap-7 px-7 pb-12 pt-10 sm:px-9">
         <motion.header
           initial="hidden"
           animate="visible"
@@ -23,16 +23,16 @@ export function App() {
             hidden: {},
             visible: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } }
           }}
-          className="flex items-start justify-between gap-6"
+          className="glass-panel flex items-center justify-between gap-6 rounded-[1.75rem] px-7 py-6"
         >
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             <motion.span
               variants={{
                 hidden: { opacity: 0, y: 4 },
                 visible: { opacity: 1, y: 0 }
               }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="text-[10px] font-mono uppercase tracking-[0.32em] text-muted-foreground/70"
+              className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground/80"
             >
               Horizon
             </motion.span>
@@ -42,10 +42,10 @@ export function App() {
                 visible: { opacity: 1, y: 0 }
               }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="font-display text-[44px] leading-[1.04] tracking-tight"
+              className="max-w-lg text-[34px] font-extrabold leading-[1.02] tracking-[-0.045em] sm:text-[42px]"
             >
               A quiet coach
-              <span className="block italic text-primary/90">for your eyes.</span>
+              <span className="block font-display italic font-normal text-primary/95">for your eyes.</span>
             </motion.h1>
             <motion.p
               variants={{
@@ -53,9 +53,9 @@ export function App() {
                 visible: { opacity: 1 }
               }}
               transition={{ duration: 0.6 }}
-              className="max-w-sm text-sm font-light text-muted-foreground"
+              className="max-w-md text-sm font-medium leading-relaxed text-muted-foreground"
             >
-              Everything tunes live. Lives in your tray. No telemetry — ever.
+              Smart breaks, blink nudges, and a softer full-screen pause. Local-first, no telemetry.
             </motion.p>
           </div>
           <motion.div
@@ -63,7 +63,7 @@ export function App() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
           >
-            <BreathingMark size={80} />
+            <BreathingMark size={72} />
           </motion.div>
         </motion.header>
 
@@ -74,7 +74,7 @@ export function App() {
             hidden: {},
             visible: { transition: { staggerChildren: 0.08, delayChildren: 0.2 } }
           }}
-          className="flex flex-col gap-10"
+          className="flex flex-col gap-5"
         >
           <Section>
             <TodayPanel />
@@ -106,7 +106,7 @@ export function App() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.9 }}
-          className="flex items-baseline justify-between border-t border-border/60 pt-6 text-xs font-light text-muted-foreground"
+          className="flex items-baseline justify-between px-2 pt-2 text-xs font-medium text-muted-foreground"
         >
           <span>
             <span className="font-display italic">Local-first.</span> No telemetry. No

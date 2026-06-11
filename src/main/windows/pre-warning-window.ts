@@ -114,7 +114,7 @@ function createWarningWindow(): BrowserWindow {
     backgroundColor: '#00000000',
     hasShadow: false,
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: path.join(__dirname, '../preload/index.cjs'),
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,

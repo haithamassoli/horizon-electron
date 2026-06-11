@@ -17,6 +17,11 @@ import { startActivityMonitors } from './activity';
 import { startBlinkModule } from './blink';
 import { startSystemIntegration } from './system-integration';
 
+const userDataDir = process.env['HORIZON_USER_DATA_DIR'];
+if (userDataDir) {
+  app.setPath('userData', userDataDir);
+}
+
 if (!app.requestSingleInstanceLock()) {
   app.quit();
   process.exit(0);

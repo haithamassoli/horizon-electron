@@ -246,9 +246,9 @@ function createOverlayWindow(
     focusable: true,
     closable: false,
     hasShadow: false,
-    backgroundColor: role === 'primary' ? '#0a1622' : '#000000',
+    backgroundColor: role === 'primary' ? '#f6eeda' : '#251c17',
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: path.join(__dirname, '../preload/index.cjs'),
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,
@@ -313,7 +313,26 @@ function handleDisplayRemoved(_event: Electron.Event, display: Display): void {
   if (!record.win.isDestroyed()) record.win.destroy();
   if (active.windows.length === 0) {
     beginClose();
+    return;
   }
+  if (record.role === 'primary') {
+    promoteNextDisplayToPrimary();
+  }
+}
+
+function promoteNextDisplayToPrimary(): void {
+  if (!active) return;
+  const next = active.windows[0];
+  if (!next) return;
+  const display = screen.getAllDisplays().find((d) => d.id === next.displayId);
+  if (!display) return;
+
+  active.windows = active.windows.filter((w) => w !== next);
+  if (!next.win.isDestroyed()) next.win.destroy();
+
+  const win = createOverlayWindow(display, 'primary', active.mode);
+  active.primaryDisplayId = display.id;
+  active.windows.unshift({ win, displayId: display.id, role: 'primary' });
 }
 
 export function wireOverlayManagerToScheduler(): () => void {

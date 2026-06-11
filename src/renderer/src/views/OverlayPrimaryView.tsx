@@ -126,7 +126,9 @@ export function OverlayPrimaryView() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="overlay-primary"
+          className={
+            'overlay-primary overlay-mode-' + init.mode + (inLockout ? ' is-lockout' : '')
+          }
         >
           <BackgroundField />
 
@@ -167,6 +169,9 @@ export function OverlayPrimaryView() {
             )}
 
             <ProgressRail value={progress} />
+            {init.mode === 'balanced' && (
+              <BalancedLockoutNotice remaining={lockoutRemaining} total={lockoutMs} />
+            )}
           </div>
 
           {showActions && (
@@ -312,6 +317,35 @@ function PanicHint({ progress }: { progress: number }) {
         />
       </div>
     </div>
+  );
+}
+
+function BalancedLockoutNotice({ remaining, total }: { remaining: number; total: number }) {
+  const locked = remaining > 0;
+  const seconds = Math.ceil(remaining / 1000);
+  const pct = total > 0 ? Math.min(1, 1 - remaining / total) : 1;
+
+  return (
+    <motion.div
+      className={'overlay-lockout-card' + (locked ? ' is-locked' : ' is-unlocked')}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      role="status"
+      aria-live="polite"
+    >
+      <span className="overlay-lockout-eyebrow">Balanced mode</span>
+      <span className="overlay-lockout-title">
+        {locked ? `Skip unlocks in ${seconds}s` : 'You can leave early if needed'}
+      </span>
+      <span className="overlay-lockout-meter" aria-hidden>
+        <motion.span
+          className="overlay-lockout-meter-fill"
+          animate={{ width: `${Math.round(pct * 100)}%` }}
+          transition={{ duration: 0.18, ease: 'linear' }}
+        />
+      </span>
+    </motion.div>
   );
 }
 

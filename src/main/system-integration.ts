@@ -10,12 +10,15 @@ export function startSystemIntegration(): () => void {
   const store = getSettingsStore();
   const officeGate = getOfficeHoursGate();
   const scheduler = getScheduler();
+  const skipLoginItemUpdates = process.env['HORIZON_DISABLE_LOGIN_ITEM_UPDATES'] === '1';
 
   const apply = (settings: Settings): void => {
-    app.setLoginItemSettings({
-      openAtLogin: settings.general.autoLaunch,
-      openAsHidden: true
-    });
+    if (!skipLoginItemUpdates) {
+      app.setLoginItemSettings({
+        openAtLogin: settings.general.autoLaunch,
+        openAsHidden: true
+      });
+    }
     nativeTheme.themeSource = settings.general.theme;
   };
 

@@ -16,28 +16,28 @@ const MODES: ModeDescriptor[] = [
     value: 'casual',
     name: 'Casual',
     blurb: 'Skip anytime. The reminder is yours to take or leave.',
-    posture: 'Permissive',
+    posture: 'Easygoing',
     gradient:
-      'linear-gradient(135deg, oklch(0.93 0.05 200 / 0.92), oklch(0.85 0.08 230 / 0.78))',
-    glow: 'oklch(0.78 0.07 220 / 0.32)'
+      'linear-gradient(135deg, oklch(0.96 0.08 78 / 0.95), oklch(0.86 0.08 145 / 0.74))',
+    glow: 'oklch(0.78 0.08 145 / 0.32)'
   },
   {
     value: 'balanced',
     name: 'Balanced',
-    blurb: 'Seven seconds before you can skip. Long enough to breathe.',
-    posture: 'Suggested',
+    blurb: 'Seven calm seconds before skip unlocks. Long enough to breathe.',
+    posture: 'Kind friction',
     gradient:
-      'linear-gradient(135deg, oklch(0.84 0.09 220 / 0.95), oklch(0.72 0.1 250 / 0.82))',
-    glow: 'oklch(0.78 0.08 235 / 0.45)'
+      'linear-gradient(135deg, oklch(0.9 0.12 50 / 0.96), oklch(0.84 0.08 28 / 0.82))',
+    glow: 'oklch(0.76 0.12 48 / 0.45)'
   },
   {
     value: 'hardcore',
     name: 'Hardcore',
-    blurb: 'No skip. No snooze. You commit; the break holds.',
-    posture: 'Firm',
+    blurb: 'No skip or snooze. A protected pause when you choose to commit.',
+    posture: 'Protected',
     gradient:
-      'linear-gradient(135deg, oklch(0.6 0.12 260 / 0.96), oklch(0.4 0.1 280 / 0.88))',
-    glow: 'oklch(0.6 0.13 270 / 0.5)'
+      'linear-gradient(135deg, oklch(0.72 0.11 22 / 0.95), oklch(0.48 0.08 28 / 0.86))',
+    glow: 'oklch(0.62 0.12 28 / 0.5)'
   }
 ];
 
@@ -112,7 +112,7 @@ export function OnboardingView() {
             transition={{ duration: 0.6, delay: 0.35 }}
             className="onboarding-subtitle"
           >
-            Pick the pace you can keep. Change your mind anytime in settings.
+            Pick a rhythm you can actually keep. Change it anytime in settings.
           </motion.p>
         </header>
 
@@ -146,7 +146,7 @@ export function OnboardingView() {
             aria-busy={submitting}
           >
             <span className="onboarding-cta-label">
-              {submitting ? 'Starting' : 'Begin'}
+              {submitting ? 'Starting' : 'Start gently'}
             </span>
             <span aria-hidden className="onboarding-cta-arrow">
               →

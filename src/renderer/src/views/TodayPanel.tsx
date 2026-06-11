@@ -27,7 +27,11 @@ export function TodayPanel() {
   ];
 
   return (
-    <Card>
+    <Card className="relative overflow-hidden">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_14%_18%,oklch(0.88_0.1_48_/_0.18),transparent_34%),radial-gradient(circle_at_92%_22%,oklch(0.8_0.08_145_/_0.13),transparent_30%)]"
+      />
       <CardHeader>
         <div className="flex items-baseline justify-between gap-6">
           <div>
@@ -40,7 +44,7 @@ export function TodayPanel() {
       </CardHeader>
       <CardContent>
         <div
-          className="grid gap-x-8 gap-y-4"
+          className="relative grid gap-3"
           style={{
             gridTemplateColumns: `repeat(${cells.length}, minmax(0, 1fr))`
           }}
@@ -56,20 +60,20 @@ export function TodayPanel() {
 
 function TodayCell({ cell }: { cell: Cell }) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="rounded-2xl border border-border/50 bg-background/45 px-3.5 py-3 shadow-[0_1px_0_oklch(1_0_0_/_0.62)_inset]">
       <motion.span
         key={cell.value}
         initial={{ opacity: 0.65, y: -2 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
         className={
-          'font-display text-4xl leading-none tracking-tight tabular-nums ' +
+          'text-[34px] font-extrabold leading-none tracking-[-0.055em] tabular-nums ' +
           (cell.accent ? 'text-primary/90' : 'text-foreground/85')
         }
       >
         {cell.value}
       </motion.span>
-      <span className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+      <span className="mt-1.5 block text-[11px] font-bold leading-tight text-muted-foreground">
         {cell.label}
       </span>
     </div>

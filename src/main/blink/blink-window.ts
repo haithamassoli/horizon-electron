@@ -58,7 +58,7 @@ function createPulseWindow(display: Display): PulseWindowRecord {
     hasShadow: false,
     // Click-through everywhere — the pulse must not steal a single click.
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: path.join(__dirname, '../preload/index.cjs'),
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,

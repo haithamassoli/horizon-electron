@@ -35,7 +35,7 @@ export function showOnboardingWindow(): BrowserWindow {
     maximizable: false,
     show: false,
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: path.join(__dirname, '../preload/index.cjs'),
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,

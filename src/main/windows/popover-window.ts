@@ -60,7 +60,7 @@ function createPopover(): BrowserWindow {
     backgroundColor: '#00000000',
     hasShadow: true,
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: path.join(__dirname, '../preload/index.cjs'),
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,

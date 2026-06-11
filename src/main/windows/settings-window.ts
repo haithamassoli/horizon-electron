@@ -31,7 +31,7 @@ export function showSettingsWindow(): BrowserWindow {
     backgroundColor: '#f6f9fc',
     show: false,
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: path.join(__dirname, '../preload/index.cjs'),
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,

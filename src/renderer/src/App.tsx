@@ -10,7 +10,7 @@ import { GeneralSettings } from './views/GeneralSettings';
 import { OfficeHoursSettings } from './views/OfficeHoursSettings';
 import { BreathingMark } from './components/BreathingMark';
 
-const DOWNLOADS_URL = 'https://horizon.bional.dev/downloads';
+const DOWNLOADS_URL = 'https://bional.github.io/horizon/downloads.html';
 
 export function App() {
   return (

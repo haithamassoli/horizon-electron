@@ -20,6 +20,9 @@ export default defineConfig({
     }
   },
   preload: {
+    ssr: {
+      noExternal: ['zod']
+    },
     resolve: {
       alias: {
         '@preload': resolve('src/preload'),
@@ -28,8 +31,12 @@ export default defineConfig({
     },
     build: {
       outDir: 'out/preload',
+      externalizeDeps: {
+        exclude: ['zod']
+      },
       rollupOptions: {
         input: { index: resolve('src/preload/index.ts') },
+        external: ['electron'],
         output: { format: 'cjs' }
       }
     }

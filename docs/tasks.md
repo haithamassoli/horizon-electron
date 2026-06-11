@@ -226,18 +226,18 @@ Sizing: **S** ≈ a few days, **M** ≈ ~1 week, **L** ≈ ~2 weeks (solo, focus
 
 **Tasks:**
 
-1. [ ] Verify `screen.on('display-added')` mid-break: new display gets the dimmed lockout, existing overlays unaffected.
-2. [ ] Verify `screen.on('display-removed')` mid-break: destroyed display's overlay is cleaned up; if it was the primary, promote the next display to primary with full UI.
+1. [x] Verify `screen.on('display-added')` mid-break: new display gets the dimmed lockout, existing overlays unaffected.
+2. [x] Verify `screen.on('display-removed')` mid-break: destroyed display's overlay is cleaned up; if it was the primary, promote the next display to primary with full UI.
 3. [ ] Test snooze + long-break collision: snoozed short break that lands during the long-break window is replaced, not stacked.
 4. [ ] Test pause expiry: at every pause duration (15m, 30m, 1h, until tomorrow), confirm timer resets and no instant break fires.
 5. [ ] Test restart persistence: `lastBreakAt` and `longBreakCounter` survive a quit + relaunch; today counters preserve same-day, reset across midnight.
 6. [ ] Test simultaneous-trigger race: schedule a break exactly at the moment idle ends; confirm exactly one overlay spawns.
 7. [ ] Test Balanced timing: keyboard skip is reliably no-op at t=6.9s and active at t=7.0s; measure with manual stopwatch + automated.
-8. [ ] Set up Playwright for Electron test harness.
-9. [ ] Write smoke test: open settings → change break interval → confirm scheduler updates.
-10. [ ] Write smoke test: trigger "Take break now" from tray → overlay spawns on all displays → dismiss → all overlays destroyed.
-11. [ ] Write smoke test: pause for 15m → confirm tray icon state changes → confirm no break for 15 min (use accelerated clock if feasible).
-12. [ ] Author a manual QA checklist (`QA.md`) covering: every enforcement mode, every pause duration, every visual aid, each ambient audio track, multi-monitor, hot-plug, idle/fullscreen/meeting suppression, panic exit, midnight reset.
+8. [x] Set up Playwright for Electron test harness.
+9. [x] Write smoke test: open settings → change break interval → confirm scheduler updates.
+10. [x] Write smoke test: trigger "Take break now" from tray → overlay spawns on all displays → dismiss → all overlays destroyed.
+11. [x] Write smoke test: pause for 15m → confirm tray icon state changes → confirm no break for 15 min (use accelerated clock if feasible).
+12. [x] Author a manual QA checklist (`QA.md`) covering: every enforcement mode, every pause duration, every visual aid, each ambient audio track, multi-monitor, hot-plug, idle/fullscreen/meeting suppression, panic exit, midnight reset.
 13. [ ] Run the full manual QA pass on a real Windows machine with at least two displays.
 14. [ ] Triage all findings: ship-block only on functional regressions; defer cosmetic issues to v1.1.
 
@@ -251,14 +251,14 @@ Sizing: **S** ≈ a few days, **M** ≈ ~1 week, **L** ≈ ~2 weeks (solo, focus
 
 **Tasks:**
 
-1. [ ] Configure `electron-builder` for Windows NSIS target in `electron-builder.yml`. Set `productName`, `appId`, install path, icons (256, 128, 64, 32, 16).
-2. [ ] Bundle all extra resources (audio files, tray icon variants).
+1. [x] Configure `electron-builder` for Windows NSIS target in `electron-builder.yml`. Set `productName`, `appId`, install path, icons (256, 128, 64, 32, 16).
+2. [x] Bundle all extra resources (audio files, tray icon variants).
 3. [ ] Build the unsigned installer locally; verify install → first launch → uninstall flow.
-4. [ ] (Optional) If a code signing certificate is available, configure signing; otherwise document the "unknown publisher" warning in the README.
+4. [x] (Optional) If a code signing certificate is available, configure signing; otherwise document the "unknown publisher" warning in the README.
 5. [ ] Install the built artifact on a clean Windows machine; reboot; verify auto-launch into tray works.
-6. [ ] Author a minimal downloads page (static HTML, single download button, version + changelog). Host via GitHub Releases or GitHub Pages.
-7. [ ] Replace the placeholder downloads URL constant from M8 with the live URL.
-8. [ ] Write `CHANGELOG.md` v1.0.0 entry summarizing features and known limitations (Windows-only, manual updates, English only).
+6. [x] Author a minimal downloads page (static HTML, single download button, version + changelog). Host via GitHub Releases or GitHub Pages.
+7. [x] Replace the placeholder downloads URL constant from M8 with the live URL.
+8. [x] Write `CHANGELOG.md` v1.0.0 entry summarizing features and known limitations (Windows-only, manual updates, English only).
 9. [ ] Tag `v1.0.0` in git; create the GitHub Release with the installer attached.
 10. [ ] Publish the downloads page; smoke-test the download → install flow end-to-end one final time.
 

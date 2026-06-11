@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from 'motion/react';
 
 /**
  * Rendered inside a transparent, click-through window spawned per display by the main process.
- * The animation runs once on mount; the window is destroyed by main after a 1.3s safety timeout.
+ * The animation runs once on mount; the window is destroyed by main after a 3.1s safety timeout.
  *
  * Visual: a soft pair of blinking eyes with small irises and curved lashes. The pulse is a single
  * gentle blink, timed to disappear before the click-through window self-destroys.
@@ -19,9 +19,9 @@ export function BlinkPulseView() {
         shouldReduceMotion
           ? { duration: 0 }
           : {
-              duration: 1.2,
+              duration: 2.8,
               ease: [0.22, 1, 0.36, 1],
-              times: [0, 0.18, 0.82, 1]
+              times: [0, 0.14, 0.9, 1]
             }
       }
       aria-hidden="true"

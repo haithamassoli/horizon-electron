@@ -4,8 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-/** Pulse animation is 1.2s; +100ms grace so the window survives the final frame. */
-const SAFETY_DESTROY_MS = 1_300;
+/** Pulse animation is 2.8s; +300ms grace so the window survives the final frame. */
+const SAFETY_DESTROY_MS = 3_100;
 
 interface PulseWindowRecord {
   win: BrowserWindow;

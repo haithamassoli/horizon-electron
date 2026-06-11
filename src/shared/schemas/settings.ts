@@ -29,7 +29,7 @@ export const snoozeSettingsSchema = z.object({
 
 export const blinkSettingsSchema = z.object({
   enabled: z.boolean(),
-  intervalMinutes: z.number().int().min(5).max(30)
+  intervalMinutes: z.number().int().min(1).max(30)
 });
 
 export const visualAidSchema = z.enum(['breathing', 'twenty-twenty-twenty', 'none']);

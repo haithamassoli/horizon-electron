@@ -6,8 +6,7 @@ interface BreathingMarkProps {
 }
 
 /**
- * M1 Motion smoke test. A soft breathing ring — also the visual seed for the
- * full breathing-circle visual that lands on the break overlay in M7.
+ * A soft breathing ring used as the app's calm visual mark.
  */
 export function BreathingMark({ size = 56, className }: BreathingMarkProps) {
   return (
@@ -25,13 +24,13 @@ export function BreathingMark({ size = 56, className }: BreathingMarkProps) {
           className="absolute inset-0 rounded-full"
           style={{
             background:
-              'radial-gradient(circle at 30% 30%, oklch(0.88 0.07 230 / 0.7), oklch(0.78 0.07 230 / 0.15) 60%, transparent 75%)'
+              'radial-gradient(circle at 30% 30%, oklch(0.94 0.09 58 / 0.78), oklch(0.78 0.08 145 / 0.18) 62%, transparent 76%)'
           }}
           animate={{ scale: [1, 1.08, 1], opacity: [0.7, 0.95, 0.7] }}
           transition={{ duration: 6, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
         />
         <motion.div
-          className="absolute inset-[18%] rounded-full border border-primary/40"
+          className="absolute inset-[18%] rounded-full border border-primary/35 shadow-[0_0_28px_oklch(0.82_0.1_48_/_0.18)]"
           animate={{ scale: [1, 0.92, 1] }}
           transition={{ duration: 6, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
         />

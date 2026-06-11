@@ -115,7 +115,7 @@ function derive(state: SchedulerState, now: number): DerivedView {
   if (state.lifecycle === 'paused' && state.pausedUntil !== null) {
     return {
       key: 'paused',
-      label: 'Paused until',
+        label: 'Back at',
       value: formatClock(state.pausedUntil),
       hint: formatPauseRemaining(state.pausedUntil - now)
     };
@@ -124,7 +124,7 @@ function derive(state: SchedulerState, now: number): DerivedView {
     return {
       key: 'office',
       label: 'Quiet hours',
-      value: 'outside office hours',
+      value: 'off the clock',
       hint: 'Resumes at start of next window'
     };
   }
@@ -132,7 +132,7 @@ function derive(state: SchedulerState, now: number): DerivedView {
     return {
       key: 'idle',
       label: 'Paused',
-      value: 'idle',
+      value: 'waiting for activity',
       hint: 'Resumes on activity'
     };
   }
@@ -141,7 +141,7 @@ function derive(state: SchedulerState, now: number): DerivedView {
       state.suppressionReason === 'fullscreen' ? 'fullscreen app' : 'meeting active';
     return {
       key: `suppressed-${state.suppressionReason ?? 'unknown'}`,
-      label: 'Deferred',
+      label: 'We’ll wait',
       value,
       hint: state.deferredBreak ? 'Break queued after activity' : 'Resumes when activity ends'
     };
@@ -158,7 +158,7 @@ function derive(state: SchedulerState, now: number): DerivedView {
     const ms = state.nextBreakAt - now;
     const base: DerivedView = {
       key: 'running',
-      label: 'Next break in',
+      label: 'Next pause in',
       value: formatCountdown(ms)
     };
     return state.isNextLong ? { ...base, hint: 'Long break next' } : base;

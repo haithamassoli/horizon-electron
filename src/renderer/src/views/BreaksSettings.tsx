@@ -32,7 +32,7 @@ export function BreaksSettings() {
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-9">
+      <CardContent className="flex flex-col gap-4">
         <Slot
           label="Break interval"
           hint="How often a short break fires while you're active."
@@ -106,18 +106,18 @@ interface SlotProps {
 
 function Slot({ label, value, hint, children }: SlotProps) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="settings-row flex flex-col gap-3 px-4 py-4">
       <div className="flex items-baseline justify-between gap-6">
         <div className="flex flex-col">
-          <span className="text-sm font-light">{label}</span>
-          {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
+          <span className="text-sm font-bold tracking-[-0.01em]">{label}</span>
+          {hint && <span className="text-xs font-medium leading-relaxed text-muted-foreground">{hint}</span>}
         </div>
         <motion.span
           key={value}
           initial={{ opacity: 0.6, y: -2 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-          className="font-mono text-xs tabular-nums text-foreground/80"
+          className="text-xs font-extrabold tabular-nums text-foreground/80"
         >
           {value}
         </motion.span>
@@ -129,7 +129,7 @@ function Slot({ label, value, hint, children }: SlotProps) {
 
 function Scale({ labels }: { labels: string[] }) {
   return (
-    <div className="flex justify-between px-0.5 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/70">
+    <div className="flex justify-between px-0.5 text-[11px] font-bold text-muted-foreground/70">
       {labels.map((l) => (
         <span key={l}>{l}</span>
       ))}

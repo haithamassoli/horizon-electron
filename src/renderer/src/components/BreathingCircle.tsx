@@ -29,7 +29,7 @@ const LABEL: Record<Phase, string> = {
 };
 
 /**
- * 4-7-8 breathing visual. Scale runs 1 → 1.4 during inhale, holds at 1.4, returns to 1
+ * 4-7-8 breathing visual. Scale runs 1 → 1.28 during inhale, holds, returns to 1
  * during exhale. The phase label is synced via JS time rather than relying on Motion's
  * keyframes (so the label change lands precisely at the phase boundary).
  */
@@ -53,12 +53,13 @@ export function BreathingCircle({ size = 320, showLabel = true }: BreathingCircl
     <div
       aria-hidden
       className="breathing-circle"
+      data-phase={phase}
       style={{ width: size, height: size }}
     >
       <motion.div
         className="breathing-circle-fill"
         animate={{
-          scale: [1, 1.4, 1.4, 1],
+          scale: [1, 1.28, 1.28, 1],
           opacity: [0.65, 0.95, 0.95, 0.65]
         }}
         transition={{
@@ -71,7 +72,7 @@ export function BreathingCircle({ size = 320, showLabel = true }: BreathingCircl
       <motion.div
         className="breathing-circle-ring"
         animate={{
-          scale: [1, 1.4, 1.4, 1],
+          scale: [1, 1.28, 1.28, 1],
           opacity: [0.45, 0.8, 0.8, 0.45]
         }}
         transition={{

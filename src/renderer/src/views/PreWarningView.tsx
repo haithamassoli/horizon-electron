@@ -63,10 +63,10 @@ export function PreWarningView() {
             <div className="relative flex h-full items-center gap-3 px-4">
               <div className="flex flex-1 flex-col">
                 <span className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                  {init?.isLongBreak ? 'Long break soon' : 'Break soon'}
+                  {init?.isLongBreak ? 'Long pause soon' : 'Gentle pause soon'}
                 </span>
                 <span className="font-display text-lg leading-tight tracking-tight">
-                  Break in {seconds ?? 60}s
+                  Rest your eyes in {seconds ?? 60}s
                 </span>
               </div>
               <button

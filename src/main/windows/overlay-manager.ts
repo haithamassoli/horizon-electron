@@ -246,7 +246,7 @@ function createOverlayWindow(
     focusable: true,
     closable: false,
     hasShadow: false,
-    backgroundColor: role === 'primary' ? '#0a1622' : '#000000',
+    backgroundColor: role === 'primary' ? '#f6eeda' : '#251c17',
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.cjs'),
       contextIsolation: true,
